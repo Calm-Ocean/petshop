@@ -44,12 +44,13 @@ const Navbar = () => {
         ...baseLinks,
         { name: 'My Courses', path: '/teacher/courses' },
         { name: 'Assignments', path: '/teacher/assignments' },
-        { name: 'Gradebook', path: '/teacher/gradebook' }, // New link
+        { name: 'Gradebook', path: '/teacher/gradebook' },
       ];
     } else if (role === 'student') {
       return [
         ...baseLinks,
         { name: 'My Courses', path: '/student/courses' },
+        { name: 'My Assignments', path: '/student/assignments' }, // New link
         { name: 'Grades', path: '/student/grades' },
       ];
     }
