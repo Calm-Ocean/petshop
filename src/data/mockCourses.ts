@@ -6,6 +6,7 @@ export interface Course {
   code: string;
   teacher: string;
   studentsEnrolled: number;
+  studentIds: string[]; // New field to track enrolled students
   status: 'active' | 'archived' | 'draft';
 }
 
@@ -15,7 +16,8 @@ export const mockCourses: Course[] = [
     title: 'Introduction to Web Development',
     code: 'CS101',
     teacher: 'Teacher Jane',
-    studentsEnrolled: 30,
+    studentsEnrolled: 3,
+    studentIds: ['student1', 'student2', 'student3'],
     status: 'active',
   },
   {
@@ -23,31 +25,35 @@ export const mockCourses: Course[] = [
     title: 'Advanced Algorithms',
     code: 'CS301',
     teacher: 'Teacher Jane',
-    studentsEnrolled: 15,
+    studentsEnrolled: 1,
+    studentIds: ['student1'],
     status: 'active',
   },
   {
     id: 'c003',
     title: 'Database Management Systems',
     code: 'IT205',
-    teacher: 'Teacher John',
-    studentsEnrolled: 25,
+    teacher: 'Alice Smith',
+    studentsEnrolled: 2,
+    studentIds: ['student2', 'student3'],
     status: 'active',
   },
   {
     id: 'c004',
     title: 'Introduction to Artificial Intelligence',
     code: 'AI401',
-    teacher: 'Teacher Alice',
-    studentsEnrolled: 20,
+    teacher: 'Alice Smith',
+    studentsEnrolled: 0,
+    studentIds: [],
     status: 'draft',
   },
   {
     id: 'c005',
     title: 'Mobile App Development',
     code: 'CS203',
-    teacher: 'Teacher Bob',
-    studentsEnrolled: 18,
+    teacher: 'Teacher Jane',
+    studentsEnrolled: 0,
+    studentIds: [],
     status: 'archived',
   },
 ];
