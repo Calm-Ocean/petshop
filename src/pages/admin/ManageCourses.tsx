@@ -5,6 +5,8 @@ import MainLayout from '@/components/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
+import CourseTable from '@/components/CourseTable'; // Import the new component
+import { mockCourses } from '@/data/mockCourses'; // Import mock data
 
 const ManageCourses = () => {
   return (
@@ -21,11 +23,7 @@ const ManageCourses = () => {
           <CardTitle>Course List</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600 dark:text-gray-400">
-            This is where the list of courses will be displayed.
-            Admins can add, edit, or delete courses here.
-          </p>
-          {/* Course listing table/components will go here */}
+          <CourseTable courses={mockCourses} />
         </CardContent>
       </Card>
     </MainLayout>
