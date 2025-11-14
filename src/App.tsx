@@ -11,7 +11,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import StudentDashboard from "./pages/student/StudentDashboard";
-import ManageCourses from "./pages/admin/ManageCourses"; // Import the new page
+import ManageCourses from "./pages/admin/ManageCourses";
+import ManageUsers from "./pages/admin/ManageUsers"; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -35,10 +36,18 @@ const App = () => (
               }
             />
             <Route
-              path="/admin/courses" // New route for managing courses
+              path="/admin/courses"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <ManageCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users" // New route for managing users
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ManageUsers />
                 </ProtectedRoute>
               }
             />
