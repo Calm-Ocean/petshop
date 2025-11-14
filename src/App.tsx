@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import ManageCourses from "./pages/admin/ManageCourses"; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -23,13 +24,21 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} /> {/* This will redirect to role-specific dashboard */}
+            <Route path="/dashboard" element={<Dashboard />} />
             
             <Route
               path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/courses" // New route for managing courses
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ManageCourses />
                 </ProtectedRoute>
               }
             />
