@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link
+import { Link } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -12,17 +12,21 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { SquarePen } from 'lucide-react';
+import { SquarePen, Users } from 'lucide-react'; // Import Users icon
 import { Course } from '@/data/mockCourses';
 import DeleteCourseDialog from './DeleteCourseDialog';
+import { useAuth } from '@/context/AuthContext'; // Import useAuth
 
 interface CourseTableProps {
   courses: Course[];
   onEditClick: (course: Course) => void;
   onDeleteClick: (course: Course) => void;
+  onEnrollClick: (course: Course) => void; // New prop
 }
 
-const CourseTable = ({ courses, onEditClick, onDeleteClick }: CourseTableProps) => {
+const CourseTable = ({ courses, onEditClick, onDeleteClick, onEnrollClick }: CourseTableProps) => {
+  const { role } = useAuth(); // Get current user role
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -65,6 +69,11 @@ const CourseTable = ({ courses, onEditClick, onDeleteClick }: CourseTableProps) 
                 </Badge>
               </TableCell>
               <TableCell className="text-right flex justify-end space-x-2">
+                {role === 'admin' && ( // Only show for admin
+                  <Button variant="ghost" size="icon" onClick={() => onEnrollClick(course)}>
+                    <Users className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" onClick={() => onEditClick(course)}>
                   <SquarePen className="h-4 w-4" />
                 </Button>
