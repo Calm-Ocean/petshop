@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link
 import {
   Table,
   TableBody,
@@ -13,12 +14,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SquarePen } from 'lucide-react';
 import { Course } from '@/data/mockCourses';
-import DeleteCourseDialog from './DeleteCourseDialog'; // Import the new dialog
+import DeleteCourseDialog from './DeleteCourseDialog';
 
 interface CourseTableProps {
   courses: Course[];
   onEditClick: (course: Course) => void;
-  onDeleteClick: (course: Course) => void; // New prop for delete action
+  onDeleteClick: (course: Course) => void;
 }
 
 const CourseTable = ({ courses, onEditClick, onDeleteClick }: CourseTableProps) => {
@@ -38,8 +39,16 @@ const CourseTable = ({ courses, onEditClick, onDeleteClick }: CourseTableProps) 
         <TableBody>
           {courses.map((course) => (
             <TableRow key={course.id}>
-              <TableCell className="font-medium">{course.code}</TableCell>
-              <TableCell>{course.title}</TableCell>
+              <TableCell className="font-medium">
+                <Link to={`/courses/${course.id}`} className="text-blue-600 hover:underline dark:text-blue-400">
+                  {course.code}
+                </Link>
+              </TableCell>
+              <TableCell>
+                <Link to={`/courses/${course.id}`} className="text-blue-600 hover:underline dark:text-blue-400">
+                  {course.title}
+                </Link>
+              </TableCell>
               <TableCell>{course.teacher}</TableCell>
               <TableCell className="text-right">{course.studentsEnrolled}</TableCell>
               <TableCell className="text-center">

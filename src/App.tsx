@@ -18,7 +18,8 @@ import StudentCourses from "./pages/student/StudentCourses";
 import TeacherAssignments from "./pages/teacher/TeacherAssignments";
 import StudentGrades from "./pages/student/StudentGrades";
 import TeacherGradebook from "./pages/teacher/TeacherGradebook";
-import StudentAssignments from "./pages/student/StudentAssignments"; // New import
+import StudentAssignments from "./pages/student/StudentAssignments";
+import CourseDetailsPage from "./pages/CourseDetailsPage"; // New import
 
 const queryClient = new QueryClient();
 
@@ -106,7 +107,7 @@ const App = () => (
               }
             />
             <Route
-              path="/student/assignments" // New route for student's assignments
+              path="/student/assignments"
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <StudentAssignments />
@@ -118,6 +119,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <StudentGrades />
+                </ProtectedRoute>
+              }
+            />
+            <Route // New route for course details
+              path="/courses/:courseId"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'teacher', 'student']}>
+                  <CourseDetailsPage />
                 </ProtectedRoute>
               }
             />
