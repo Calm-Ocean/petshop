@@ -42,13 +42,13 @@ const Navbar = () => {
     } else if (role === 'teacher') {
       return [
         ...baseLinks,
-        { name: 'My Courses', path: '/teacher/courses' }, // Updated path
-        { name: 'Assignments', path: '/teacher/assignments' },
+        { name: 'My Courses', path: '/teacher/courses' },
+        { name: 'Assignments', path: '/teacher/assignments' }, // Updated path
       ];
     } else if (role === 'student') {
       return [
         ...baseLinks,
-        { name: 'My Courses', path: '/student/courses' }, // Updated path
+        { name: 'My Courses', path: '/student/courses' },
         { name: 'Grades', path: '/student/grades' },
       ];
     }

@@ -13,8 +13,9 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import ManageCourses from "./pages/admin/ManageCourses";
 import ManageUsers from "./pages/admin/ManageUsers";
-import TeacherCourses from "./pages/teacher/TeacherCourses"; // New import
-import StudentCourses from "./pages/student/StudentCourses"; // New import
+import TeacherCourses from "./pages/teacher/TeacherCourses";
+import StudentCourses from "./pages/student/StudentCourses";
+import TeacherAssignments from "./pages/teacher/TeacherAssignments"; // New import
 
 const queryClient = new QueryClient();
 
@@ -61,11 +62,19 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route // New route for teacher's courses
+            <Route
               path="/teacher/courses"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <TeacherCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route // New route for teacher's assignments
+              path="/teacher/assignments"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherAssignments />
                 </ProtectedRoute>
               }
             />
@@ -77,7 +86,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route // New route for student's courses
+            <Route
               path="/student/courses"
               element={
                 <ProtectedRoute allowedRoles={['student']}>
