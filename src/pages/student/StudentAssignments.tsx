@@ -38,7 +38,7 @@ const StudentAssignments = () => {
     }
   }, [user]);
 
-  const handleMarkAsSubmitted = (assignmentId: string) => {
+  const handleMarkAsSubmitted = (assignmentId: string, fileName?: string) => {
     if (!user) {
       showError("You must be logged in to submit assignments.");
       return;
@@ -56,8 +56,9 @@ const StudentAssignments = () => {
           updatedGrades[existingGradeIndex] = {
             ...updatedGrades[existingGradeIndex],
             status: 'submitted',
+            feedback: fileName ? `Submitted file: ${fileName}` : updatedGrades[existingGradeIndex].feedback,
           };
-          showSuccess('Assignment marked as submitted!');
+          showSuccess(`Assignment marked as submitted! ${fileName ? `File: ${fileName}` : ''}`);
         } else {
           showError('Assignment is already submitted or graded.');
         }
@@ -65,15 +66,15 @@ const StudentAssignments = () => {
       } else {
         // Create a new grade entry for this submission
         const newGrade: Grade = {
-          id: `g${Date.now()}-${user.id}-${assignmentId}`, // Unique ID
+          id: `g${Date.now()}-${user.id}-${assignmentId}`,
           studentId: user.id,
           assignmentId: assignmentId,
           courseId: mockAssignments.find(a => a.id === assignmentId)?.courseId || 'unknown',
           score: null,
-          feedback: null,
+          feedback: fileName ? `Submitted file: ${fileName}` : null,
           status: 'submitted',
         };
-        showSuccess('Assignment marked as submitted!');
+        showSuccess(`Assignment marked as submitted! ${fileName ? `File: ${fileName}` : ''}`);
         return [...prevGrades, newGrade];
       }
     });
