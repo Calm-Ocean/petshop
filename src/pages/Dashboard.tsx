@@ -7,10 +7,13 @@ import MainLayout from '@/components/MainLayout';
 import AdminDashboardSummary from '@/components/dashboard/AdminDashboardSummary';
 import TeacherDashboardSummary from '@/components/dashboard/TeacherDashboardSummary';
 import StudentDashboardSummary from '@/components/dashboard/StudentDashboardSummary';
+import { useAssignmentNotifications } from '@/hooks/useAssignmentNotifications'; // New import
 
 const Dashboard = () => {
   const { user, role } = useAuth();
   const navigate = useNavigate();
+
+  useAssignmentNotifications(); // Call the hook here
 
   useEffect(() => {
     if (!user) {
