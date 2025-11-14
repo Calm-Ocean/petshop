@@ -14,11 +14,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { Assignment } from '@/data/mockAssignments';
+import { Assignment } from '@/data/mockAssignments'; // Import Assignment type
 import { showSuccess } from '@/utils/toast';
 
 interface DeleteAssignmentDialogProps {
-  assignment: Assignment;
+  assignment: Assignment; // Changed from 'course' to 'assignment'
   onDeleteAssignment: (assignmentId: string) => void;
 }
 

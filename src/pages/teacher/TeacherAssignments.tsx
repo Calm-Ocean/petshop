@@ -15,6 +15,7 @@ const TeacherAssignments = () => {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // New state for delete dialog
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
   useEffect(() => {
@@ -52,8 +53,14 @@ const TeacherAssignments = () => {
     );
   };
 
+  const handleDeleteClick = (assignment: Assignment) => {
+    setSelectedAssignment(assignment);
+    setIsDeleteDialogOpen(true);
+  };
+
   const handleDeleteAssignment = (assignmentId: string) => {
     setAssignments((prevAssignments) => prevAssignments.filter((assignment) => assignment.id !== assignmentId));
+    setIsDeleteDialogOpen(false); // Close dialog after deletion
   };
 
   return (
@@ -72,7 +79,7 @@ const TeacherAssignments = () => {
             <AssignmentTable
               assignments={assignments}
               onEditClick={handleEditClick}
-              onDeleteClick={handleDeleteAssignment}
+              onDeleteClick={handleDeleteClick} // Pass the new handler
             />
           ) : (
             <p className="text-center text-muted-foreground">No assignments found for your courses.</p>
@@ -86,6 +93,13 @@ const TeacherAssignments = () => {
           onOpenChange={setIsEditDialogOpen}
           assignment={selectedAssignment}
           onEditAssignment={handleEditAssignment}
+        />
+      )}
+
+      {selectedAssignment && isDeleteDialogOpen && ( // Conditionally render DeleteAssignmentDialog
+        <DeleteAssignmentDialog
+          assignment={selectedAssignment}
+          onDeleteAssignment={handleDeleteAssignment}
         />
       )}
     </MainLayout>
