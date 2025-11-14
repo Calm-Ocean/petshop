@@ -5,7 +5,7 @@ import MainLayout from '@/components/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CourseTable from '@/components/CourseTable';
 import AddCourseDialog from '@/components/AddCourseDialog';
-import EditCourseDialog from '@/components/EditCourseDialog'; // Import the new dialog component
+import EditCourseDialog from '@/components/EditCourseDialog';
 import { mockCourses, Course } from '@/data/mockCourses';
 
 const ManageCourses = () => {
@@ -35,6 +35,10 @@ const ManageCourses = () => {
     );
   };
 
+  const handleDeleteCourse = (courseId: string) => {
+    setCourses((prevCourses) => prevCourses.filter((course) => course.id !== courseId));
+  };
+
   return (
     <MainLayout>
       <div className="flex items-center justify-between mb-6">
@@ -47,7 +51,11 @@ const ManageCourses = () => {
           <CardTitle>Course List</CardTitle>
         </CardHeader>
         <CardContent>
-          <CourseTable courses={courses} onEditClick={handleEditClick} /> {/* Pass onEditClick */}
+          <CourseTable
+            courses={courses}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteCourse} // Pass onDeleteClick
+          />
         </CardContent>
       </Card>
 
