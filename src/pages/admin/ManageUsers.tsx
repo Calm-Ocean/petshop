@@ -36,8 +36,8 @@ const ManageUsers = () => {
     );
   };
 
-  const handleDeleteUser = (userId: string) => {
-    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+  const handleDeleteUser = (userToDelete: User) => { // Changed parameter to User
+    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userToDelete.id));
   };
 
   return (
@@ -55,7 +55,7 @@ const ManageUsers = () => {
           <UserTable
             users={users}
             onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteUser}
+            onDeleteClick={handleDeleteUser} // Now passes User object
           />
         </CardContent>
       </Card>

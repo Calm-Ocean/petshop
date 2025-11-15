@@ -40,13 +40,13 @@ import { mockCourses } from '@/data/mockCourses';
 const formSchema = z.object({
   title: z.string().min(2, {
     message: 'Title must be at least 2 characters.',
-  }),
+  }).nonempty("Title cannot be empty."), // Added .nonempty()
   courseId: z.string().min(1, {
     message: 'Please select a course.',
-  }),
+  }).nonempty("Course must be selected."), // Added .nonempty()
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Due date must be in YYYY-MM-DD format.',
-  }),
+  }).nonempty("Due date cannot be empty."), // Added .nonempty()
   status: z.enum(['pending', 'graded', 'submitted'], {
     required_error: 'Please select an assignment status.',
   }),

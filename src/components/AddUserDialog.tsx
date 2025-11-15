@@ -38,13 +38,13 @@ import { showSuccess } from '@/utils/toast';
 const formSchema = z.object({
   username: z.string().min(2, {
     message: 'Username must be at least 2 characters.',
-  }),
+  }).nonempty("Username cannot be empty."), // Added .nonempty()
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters.',
-  }),
+  }).nonempty("Name cannot be empty."), // Added .nonempty()
   password: z.string().min(6, {
     message: 'Password must be at least 6 characters.',
-  }),
+  }).nonempty("Password cannot be empty."), // Added .nonempty()
   role: z.enum(['admin', 'teacher', 'student'], {
     required_error: 'Please select a user role.',
   }),

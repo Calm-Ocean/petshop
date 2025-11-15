@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/select';
 import { Course } from '@/data/mockCourses';
 import { showSuccess } from '@/utils/toast';
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea
 
 // Define the form schema using Zod
 const formSchema = z.object({
@@ -48,10 +49,13 @@ const formSchema = z.object({
   status: z.enum(['active', 'archived', 'draft'], {
     required_error: 'Please select a course status.',
   }),
+  description: z.string().min(10, { // Added description field
+    message: 'Description must be at least 10 characters.',
+  }),
 });
 
 interface AddCourseDialogProps {
-  onAddCourse: (newCourse: Omit<Course, 'id' | 'studentsEnrolled'>) => void;
+  onAddCourse: (newCourse: Omit<Course, 'id' | 'studentsEnrolled' | 'studentIds'>) => void; // Adjusted Omit type
 }
 
 const AddCourseDialog = ({ onAddCourse }: AddCourseDialogProps) => {
@@ -64,11 +68,14 @@ const AddCourseDialog = ({ onAddCourse }: AddCourseDialogProps) => {
       code: '',
       teacher: '',
       status: 'draft', // Default status
+      description: '', // Default description
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    onAddCourse(values);
+    // The onAddCourse expects Omit<Course, 'id' | 'studentsEnrolled' | 'studentIds'>
+    // The form values now match this structure.
+    onAddCourse(values); // Removed studentIds: [] from here
     showSuccess('Course added successfully!');
     form.reset(); // Reset form fields
     setOpen(false); // Close the dialog
@@ -124,6 +131,19 @@ const AddCourseDialog = ({ onAddCourse }: AddCourseDialogProps) => {
                   <FormLabel>Teacher</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Jane Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="A brief description of the course..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
