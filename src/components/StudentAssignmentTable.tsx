@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Upload } from 'lucide-react';
+import { CheckCircle2, Upload, FileText } from 'lucide-react'; // Import FileText icon
 import { Assignment } from '@/data/mockAssignments';
 import { Grade } from '@/data/mockGrades';
 import { mockCourses } from '@/data/mockCourses';
-import { differenceInDays, parseISO } from 'date-fns'; // New import
+import { differenceInDays, parseISO } from 'date-fns';
 
 interface StudentAssignmentTableProps {
   assignments: Assignment[];
@@ -62,9 +62,8 @@ const StudentAssignmentTable = ({
     return course ? course.code : 'N/A';
   };
 
-  const getAssignmentStatus = (assignmentId: string): Grade['status'] => {
-    const grade = studentGrades.find(g => g.assignmentId === assignmentId);
-    return grade?.status || 'not_submitted';
+  const getStudentGradeForAssignment = (assignmentId: string) => {
+    return studentGrades.find(g => g.assignmentId === assignmentId);
   };
 
   const getStatusBadge = (status: Grade['status']) => {
@@ -103,13 +102,16 @@ const StudentAssignmentTable = ({
             <TableHead>Assignment Title</TableHead>
             <TableHead>Due Date</TableHead>
             <TableHead className="text-center">Status</TableHead>
-            <TableHead className="text-center">Priority</TableHead> {/* New column */}
+            <TableHead className="text-center">Priority</TableHead>
+            <TableHead>Assignment Files</TableHead> {/* New column */}
+            <TableHead>Submitted File</TableHead> {/* New column */}
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {assignments.map((assignment) => {
-            const status = getAssignmentStatus(assignment.id);
+            const studentGrade = getStudentGradeForAssignment(assignment.id);
+            const status = studentGrade?.status || 'not_submitted';
             const isSubmittedOrGraded = status === 'submitted' || status === 'graded';
             const { priority, daysLeft, priorityBadgeVariant } = getAssignmentPriorityDetails(assignment, status);
 
@@ -124,6 +126,28 @@ const StudentAssignmentTable = ({
                     {priority} {priority !== 'Completed' && daysLeft >= 0 ? `(${daysLeft} days)` : ''}
                     {priority !== 'Completed' && daysLeft < 0 ? `(Overdue by ${Math.abs(daysLeft)} days)` : ''}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  {assignment.files && assignment.files.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {assignment.files.map((file, index) => (
+                        <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                          <FileText className="h-3 w-3" /> {file}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">No files</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {studentGrade?.submittedFileName ? (
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <FileText className="h-3 w-3" /> {studentGrade.submittedFileName}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">N/A</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <input

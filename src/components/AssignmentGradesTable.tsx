@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { SquarePen } from 'lucide-react';
+import { SquarePen, FileText } from 'lucide-react'; // Import FileText icon
 import { Assignment } from '@/data/mockAssignments';
 import { Grade } from '@/data/mockGrades';
 import { User } from '@/context/AuthContext';
@@ -63,6 +63,7 @@ const AssignmentGradesTable = ({
             <TableHead>Student Name</TableHead>
             <TableHead className="text-center">Status</TableHead>
             <TableHead className="text-center">Score</TableHead>
+            <TableHead>Submitted File</TableHead> {/* New column */}
             <TableHead>Feedback</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -80,6 +81,15 @@ const AssignmentGradesTable = ({
                 </TableCell>
                 <TableCell className="text-center">
                   {studentGrade?.score !== null ? studentGrade?.score : '-'}
+                </TableCell>
+                <TableCell>
+                  {studentGrade?.submittedFileName ? (
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <FileText className="h-3 w-3" /> {studentGrade.submittedFileName}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">N/A</span>
+                  )}
                 </TableCell>
                 <TableCell>{studentGrade?.feedback || 'No feedback yet.'}</TableCell>
                 <TableCell className="text-right">

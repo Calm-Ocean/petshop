@@ -35,21 +35,23 @@ import { Assignment } from '@/data/mockAssignments';
 import { showSuccess } from '@/utils/toast';
 import { useAuth } from '@/context/AuthContext';
 import { mockCourses } from '@/data/mockCourses';
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea for files
 
 // Define the form schema using Zod
 const formSchema = z.object({
   title: z.string().min(2, {
     message: 'Title must be at least 2 characters.',
-  }).nonempty("Title cannot be empty."), // Added .nonempty()
+  }).nonempty("Title cannot be empty."),
   courseId: z.string().min(1, {
     message: 'Please select a course.',
-  }).nonempty("Course must be selected."), // Added .nonempty()
+  }).nonempty("Course must be selected."),
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Due date must be in YYYY-MM-DD format.',
-  }).nonempty("Due date cannot be empty."), // Added .nonempty()
+  }).nonempty("Due date cannot be empty."),
   status: z.enum(['pending', 'graded', 'submitted'], {
     required_error: 'Please select an assignment status.',
   }),
+  files: z.string().optional(), // New field for files (comma-separated)
 });
 
 interface AddAssignmentDialogProps {
@@ -67,15 +69,19 @@ const AddAssignmentDialog = ({ onAddAssignment }: AddAssignmentDialogProps) => {
       courseId: '',
       dueDate: '',
       status: 'pending', // Default status
+      files: '', // Default empty string for files
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!user || user.role !== 'teacher') {
-      // This should ideally be prevented by ProtectedRoute, but good to have a fallback
       return;
     }
-    onAddAssignment(values);
+    const newAssignmentData = {
+      ...values,
+      files: values.files ? values.files.split(',').map(file => file.trim()).filter(file => file !== '') : [],
+    };
+    onAddAssignment(newAssignmentData);
     showSuccess('Assignment added successfully!');
     form.reset(); // Reset form fields
     setOpen(false); // Close the dialog
@@ -145,6 +151,23 @@ const AddAssignmentDialog = ({ onAddAssignment }: AddAssignmentDialogProps) => {
                   <FormLabel>Due Date</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="files"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assignment Files (comma-separated)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="e.g., instructions.pdf, starter_code.zip"
+                      className="resize-none"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

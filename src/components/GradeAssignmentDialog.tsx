@@ -34,6 +34,8 @@ import { Grade } from '@/data/mockGrades';
 import { Assignment } from '@/data/mockAssignments';
 import { User } from '@/context/AuthContext';
 import { showSuccess } from '@/utils/toast';
+import { Badge } from '@/components/ui/badge'; // Import Badge
+import { FileText } from 'lucide-react'; // Import FileText icon
 
 // Define the form schema using Zod
 const formSchema = z.object({
@@ -100,6 +102,7 @@ const GradeAssignmentDialog = ({
       score: values.score,
       feedback: values.feedback,
       status: values.status,
+      submittedFileName: grade?.submittedFileName || null, // Preserve submitted file name
     };
     onSaveGrade(updatedGrade);
     showSuccess('Grade saved successfully!');
@@ -117,6 +120,13 @@ const GradeAssignmentDialog = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
+            {grade?.submittedFileName && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <FileText className="h-4 w-4" />
+                <span>Submitted File:</span>
+                <Badge variant="secondary">{grade.submittedFileName}</Badge>
+              </div>
+            )}
             <FormField
               control={form.control}
               name="score"

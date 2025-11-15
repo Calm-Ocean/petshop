@@ -8,6 +8,7 @@ export interface Grade {
   score: number | null; // Null if not yet graded
   feedback: string | null;
   status: 'graded' | 'submitted' | 'not_submitted';
+  submittedFileName?: string | null; // New field to store the name of the file submitted by the student
 }
 
 export const mockGrades: Grade[] = [
@@ -19,6 +20,7 @@ export const mockGrades: Grade[] = [
     score: 85,
     feedback: 'Good effort, focus on CSS specificity.',
     status: 'graded',
+    submittedFileName: 'student1_a001_submission.zip',
   },
   {
     id: 'g002',
@@ -28,6 +30,7 @@ export const mockGrades: Grade[] = [
     score: 92,
     feedback: 'Excellent work!',
     status: 'graded',
+    submittedFileName: 'student2_a001_solution.pdf',
   },
   {
     id: 'g003',
@@ -37,6 +40,7 @@ export const mockGrades: Grade[] = [
     score: null,
     feedback: null,
     status: 'submitted',
+    submittedFileName: 'student3_a001_draft.zip',
   },
   {
     id: 'g004',
@@ -46,6 +50,7 @@ export const mockGrades: Grade[] = [
     score: null,
     feedback: null,
     status: 'not_submitted',
+    submittedFileName: null,
   },
   {
     id: 'g005',
@@ -55,6 +60,7 @@ export const mockGrades: Grade[] = [
     score: 78,
     feedback: 'Understand JOINs better.',
     status: 'graded',
+    submittedFileName: 'student2_a003_queries.sql',
   },
   {
     id: 'g006',
@@ -64,6 +70,7 @@ export const mockGrades: Grade[] = [
     score: 88,
     feedback: 'Solid SQL skills.',
     status: 'graded',
+    submittedFileName: 'student3_a003_final.sql',
   },
   {
     id: 'g007',
@@ -73,5 +80,6 @@ export const mockGrades: Grade[] = [
     score: null,
     feedback: null,
     status: 'submitted',
+    submittedFileName: 'student1_a004_report.pdf',
   },
 ];

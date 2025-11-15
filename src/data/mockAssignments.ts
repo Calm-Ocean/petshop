@@ -7,6 +7,7 @@ export interface Assignment {
   dueDate: string; // YYYY-MM-DD format
   status: 'pending' | 'graded' | 'submitted';
   teacherName: string; // To link with teacher's courses
+  files: string[]; // New field for assignment-related files (e.g., problem statement, starter code)
 }
 
 export const mockAssignments: Assignment[] = [
@@ -17,6 +18,7 @@ export const mockAssignments: Assignment[] = [
     dueDate: '2024-10-15',
     status: 'pending',
     teacherName: 'Teacher Jane',
+    files: ['index.html', 'style.css'],
   },
   {
     id: 'a002',
@@ -25,6 +27,7 @@ export const mockAssignments: Assignment[] = [
     dueDate: '2024-10-22',
     status: 'pending',
     teacherName: 'Teacher Jane',
+    files: ['script.js', 'instructions.pdf'],
   },
   {
     id: 'a003',
@@ -33,6 +36,7 @@ export const mockAssignments: Assignment[] = [
     dueDate: '2024-11-01',
     status: 'graded',
     teacherName: 'Alice Smith',
+    files: ['database_schema.sql'],
   },
   {
     id: 'a004',
@@ -41,5 +45,6 @@ export const mockAssignments: Assignment[] = [
     dueDate: '2024-11-10',
     status: 'submitted',
     teacherName: 'Teacher Jane',
+    files: ['problem_set.pdf'],
   },
 ];

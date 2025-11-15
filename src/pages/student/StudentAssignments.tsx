@@ -56,7 +56,7 @@ const StudentAssignments = () => {
           updatedGrades[existingGradeIndex] = {
             ...updatedGrades[existingGradeIndex],
             status: 'submitted',
-            feedback: fileName ? `Submitted file: ${fileName}` : updatedGrades[existingGradeIndex].feedback,
+            submittedFileName: fileName || null, // Store the submitted file name
           };
           showSuccess(`Assignment marked as submitted! ${fileName ? `File: ${fileName}` : ''}`);
         } else {
@@ -71,8 +71,9 @@ const StudentAssignments = () => {
           assignmentId: assignmentId,
           courseId: mockAssignments.find(a => a.id === assignmentId)?.courseId || 'unknown',
           score: null,
-          feedback: fileName ? `Submitted file: ${fileName}` : null,
+          feedback: null,
           status: 'submitted',
+          submittedFileName: fileName || null, // Store the submitted file name
         };
         showSuccess(`Assignment marked as submitted! ${fileName ? `File: ${fileName}` : ''}`);
         return [...prevGrades, newGrade];

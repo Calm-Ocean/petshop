@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { SquarePen, Trash2 } from 'lucide-react';
+import { SquarePen, Trash2, FileText } from 'lucide-react'; // Import FileText icon
 import { Assignment } from '@/data/mockAssignments';
 import { differenceInDays, parseISO } from 'date-fns';
 
@@ -57,7 +57,8 @@ const AssignmentTable = ({ assignments, onEditClick, onDeleteClick }: Assignment
             <TableHead>Course ID</TableHead>
             <TableHead>Due Date</TableHead>
             <TableHead className="text-center">Status</TableHead>
-            <TableHead className="text-center">Priority</TableHead> {/* New column */}
+            <TableHead className="text-center">Priority</TableHead>
+            <TableHead>Files</TableHead> {/* New column */}
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -87,6 +88,19 @@ const AssignmentTable = ({ assignments, onEditClick, onDeleteClick }: Assignment
                     {priority} {priority !== 'Completed' && daysLeft >= 0 ? `(${daysLeft} days)` : ''}
                     {priority !== 'Completed' && daysLeft < 0 ? `(Overdue by ${Math.abs(daysLeft)} days)` : ''}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  {assignment.files && assignment.files.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {assignment.files.map((file, index) => (
+                        <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                          <FileText className="h-3 w-3" /> {file}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">No files</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right flex justify-end space-x-2">
                   <Button variant="ghost" size="icon" onClick={() => onEditClick(assignment)}>

@@ -33,6 +33,7 @@ import { Assignment } from '@/data/mockAssignments';
 import { showSuccess } from '@/utils/toast';
 import { useAuth } from '@/context/AuthContext';
 import { mockCourses } from '@/data/mockCourses';
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea for files
 
 // Define the form schema using Zod
 const formSchema = z.object({
@@ -48,6 +49,7 @@ const formSchema = z.object({
   status: z.enum(['pending', 'graded', 'submitted'], {
     required_error: 'Please select an assignment status.',
   }),
+  files: z.string().optional(), // New field for files (comma-separated)
 });
 
 interface EditAssignmentDialogProps {
@@ -66,6 +68,7 @@ const EditAssignmentDialog = ({ open, onOpenChange, assignment, onEditAssignment
       courseId: assignment.courseId,
       dueDate: assignment.dueDate,
       status: assignment.status,
+      files: assignment.files.join(', '), // Join array to string for input
     },
   });
 
@@ -77,6 +80,7 @@ const EditAssignmentDialog = ({ open, onOpenChange, assignment, onEditAssignment
         courseId: assignment.courseId,
         dueDate: assignment.dueDate,
         status: assignment.status,
+        files: assignment.files.join(', '),
       });
     }
   }, [assignment, form]);
@@ -89,6 +93,7 @@ const EditAssignmentDialog = ({ open, onOpenChange, assignment, onEditAssignment
       ...assignment,
       ...values,
       teacherName: user.name, // Ensure teacherName is consistent
+      files: values.files ? values.files.split(',').map(file => file.trim()).filter(file => file !== '') : [],
     };
     onEditAssignment(updatedAssignment);
     showSuccess('Assignment updated successfully!');
@@ -154,6 +159,23 @@ const EditAssignmentDialog = ({ open, onOpenChange, assignment, onEditAssignment
                   <FormLabel>Due Date</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="files"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assignment Files (comma-separated)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="e.g., instructions.pdf, starter_code.zip"
+                      className="resize-none"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
