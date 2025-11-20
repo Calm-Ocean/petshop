@@ -41,11 +41,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <CardContent className="flex items-baseline justify-between">
         {product.discountPrice ? (
           <div className="flex items-baseline space-x-2">
-            <span className="text-xl font-bold text-primary">${product.discountPrice.toFixed(2)}</span>
-            <span className="text-sm text-muted-foreground line-through">${product.price.toFixed(2)}</span>
+            <span className="text-xl font-bold text-primary">₹{product.discountPrice.toFixed(2)}</span>
+            <span className="text-sm text-muted-foreground line-through">₹{product.price.toFixed(2)}</span>
           </div>
         ) : (
-          <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
+          <span className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</span>
         )}
         {product.stock === 0 ? (
           <Badge variant="destructive">Out of Stock</Badge>

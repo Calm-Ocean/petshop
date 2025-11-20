@@ -96,7 +96,7 @@ const UserOrderHistoryPage = () => {
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
                       <TableCell>{format(new Date(order.orderDate), 'PPP')}</TableCell>
-                      <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell>₹{order.totalAmount.toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(order.status)}>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

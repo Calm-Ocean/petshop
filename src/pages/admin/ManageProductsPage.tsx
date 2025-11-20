@@ -68,11 +68,11 @@ const ManageProductsPage = () => {
                       <TableCell>
                         {product.discountPrice ? (
                           <div className="flex flex-col">
-                            <span className="text-sm line-through text-muted-foreground">${product.price.toFixed(2)}</span>
-                            <span className="font-semibold">${product.discountPrice.toFixed(2)}</span>
+                            <span className="text-sm line-through text-muted-foreground">₹{product.price.toFixed(2)}</span>
+                            <span className="font-semibold">₹{product.discountPrice.toFixed(2)}</span>
                           </div>
                         ) : (
-                          <span className="font-semibold">${product.price.toFixed(2)}</span>
+                          <span className="font-semibold">₹{product.price.toFixed(2)}</span>
                         )}
                       </TableCell>
                       <TableCell>

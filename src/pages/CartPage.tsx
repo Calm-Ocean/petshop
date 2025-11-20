@@ -54,7 +54,7 @@ const CartPage = () => {
           <CardContent className="space-y-4">
             <div className="flex justify-between text-lg">
               <span>Subtotal:</span>
-              <span className="font-semibold">${cartTotal.toFixed(2)}</span>
+              <span className="font-semibold">₹{cartTotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-lg">
               <span>Shipping:</span>
@@ -63,7 +63,7 @@ const CartPage = () => {
             <Separator />
             <div className="flex justify-between text-xl font-bold">
               <span>Total:</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>₹{cartTotal.toFixed(2)}</span>
             </div>
           </CardContent>
           <CardFooter>
