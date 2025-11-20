@@ -4,11 +4,14 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext'; // New import
 import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge'; // New import
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();
+  const { cartItemCount } = useCart(); // Use cart context
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -35,8 +38,13 @@ const Navbar = () => {
             </Button>
           </Link>
           <Link to="/cart">
-            <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+            <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80 relative">
               <ShoppingCart className="h-4 w-4 mr-2" /> Cart
+              {cartItemCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 rounded-full bg-accent text-accent-foreground">
+                  {cartItemCount}
+                </Badge>
+              )}
             </Button>
           </Link>
 

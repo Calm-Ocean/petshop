@@ -7,12 +7,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart } from 'lucide-react';
+import { useCart } from '@/context/CartContext'; // New import
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const { addToCart } = useCart(); // Use cart context
+
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
+
   return (
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <Link to={`/shop/${product.id}`} className="block">
@@ -50,7 +57,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <Link to={`/shop/${product.id}`}>
           <Button variant="outline">View Details</Button>
         </Link>
-        <Button disabled={product.stock === 0}>
+        <Button disabled={product.stock === 0} onClick={handleAddToCart}>
           <ShoppingCart className="h-4 w-4 mr-2" /> Add to Cart
         </Button>
       </CardFooter>

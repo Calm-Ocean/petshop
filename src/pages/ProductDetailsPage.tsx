@@ -7,11 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
+import { useCart } from '@/context/CartContext'; // New import
+import { Input } from '@/components/ui/input'; // New import
+import { Label } from '@/components/ui/label'; // New import
 
 const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const product = mockProducts.find((p) => p.id === productId);
+  const { addToCart } = useCart(); // Use cart context
+  const [quantity, setQuantity] = React.useState(1); // State for quantity
 
   if (!product) {
     return (
@@ -30,8 +34,18 @@ const ProductDetailsPage = () => {
   }
 
   const handleAddToCart = () => {
-    // This will be implemented later with a proper cart context
-    toast.success(`${product.name} added to cart! (Placeholder)`);
+    addToCart(product, quantity);
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value >= 1 && value <= product.stock) {
+      setQuantity(value);
+    } else if (value < 1) {
+      setQuantity(1);
+    } else if (value > product.stock) {
+      setQuantity(product.stock);
+    }
   };
 
   return (
@@ -84,6 +98,20 @@ const ProductDetailsPage = () => {
                 <Badge variant="destructive">Out of Stock</Badge>
               )}
             </div>
+            {product.stock > 0 && (
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="quantity" className="text-lg">Quantity:</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  max={product.stock}
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  className="w-24"
+                />
+              </div>
+            )}
             <Button
               size="lg"
               className="w-full md:w-auto"

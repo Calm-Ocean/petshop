@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext"; // New import
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/MainLayout";
 import NotFound from "./pages/NotFound";
@@ -15,7 +16,7 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AboutPage from "./pages/AboutPage";
-import ProductDetailsPage from "./pages/ProductDetailsPage"; // New import
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -26,40 +27,40 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<HomePage />} /> {/* Default route */}
-              <Route path="/home" element={<HomePage />} />
-              <Route path="/shop" element={<ShopPage />} />
-              <Route path="/shop/:productId" element={<ProductDetailsPage />} /> {/* New route */}
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/about" element={<AboutPage />} />
+          <CartProvider> {/* Wrap with CartProvider */}
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/shop/:productId" element={<ProductDetailsPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/about" element={<AboutPage />} />
 
-              <Route
-                path="/checkout"
-                element={
-                  <ProtectedRoute allowedRoles={['admin', 'user']}>
-                    <CheckoutPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              {/* Add more specific admin routes here later, e.g., /admin/products, /admin/users */}
-            </Route>
+                <Route
+                  path="/checkout"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin', 'user']}>
+                      <CheckoutPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AdminDashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+              </Route>
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CartProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
