@@ -18,7 +18,9 @@ import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AboutPage from "./pages/AboutPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
-import AddProductPage from "./pages/admin/AddProductPage"; // New import
+import AddProductPage from "./pages/admin/AddProductPage";
+import ManageProductsPage from "./pages/admin/ManageProductsPage"; // New import
+import EditProductPage from "./pages/admin/EditProductPage"; // New import
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,22 @@ const App = () => (
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <AddProductPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/products"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ManageProductsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/products/edit/:productId"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <EditProductPage />
                     </ProtectedRoute>
                   }
                 />

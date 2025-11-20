@@ -66,3 +66,18 @@ export const addProduct = (newProduct: Omit<Product, 'id'>) => {
   mockProducts.push(productWithId);
   return productWithId;
 };
+
+export const updateProduct = (updatedProduct: Product) => {
+  const index = mockProducts.findIndex(p => p.id === updatedProduct.id);
+  if (index !== -1) {
+    mockProducts[index] = updatedProduct;
+    return true;
+  }
+  return false;
+};
+
+export const deleteProduct = (productId: string) => {
+  const initialLength = mockProducts.length;
+  mockProducts = mockProducts.filter(p => p.id !== productId);
+  return mockProducts.length < initialLength;
+};

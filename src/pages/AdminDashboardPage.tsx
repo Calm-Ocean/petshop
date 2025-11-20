@@ -12,10 +12,10 @@ const AdminDashboardPage = () => {
         Manage products, users, and orders.
       </p>
       <div className="flex justify-center space-x-4">
-        <Link to="/admin/products/add"> {/* New link */}
+        <Link to="/admin/products/add">
           <Button>Add New Product</Button>
         </Link>
-        <Link to="/admin/products">
+        <Link to="/admin/products"> {/* Updated link */}
           <Button>Manage Products</Button>
         </Link>
         <Link to="/admin/users">
