@@ -1,6 +1,6 @@
 import { Product } from '@/types/product';
 
-export const mockProducts: Product[] = [
+export let mockProducts: Product[] = [
   {
     id: 'prod1',
     name: 'Premium Dog Food',
@@ -59,3 +59,10 @@ export const mockProducts: Product[] = [
     stock: 20,
   },
 ];
+
+export const addProduct = (newProduct: Omit<Product, 'id'>) => {
+  const id = `prod${mockProducts.length + 1}`; // Simple ID generation
+  const productWithId = { ...newProduct, id };
+  mockProducts.push(productWithId);
+  return productWithId;
+};

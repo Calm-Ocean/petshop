@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { CartProvider } from "./context/CartContext"; // New import
+import { CartProvider } from "./context/CartContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/MainLayout";
 import NotFound from "./pages/NotFound";
@@ -17,7 +17,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AboutPage from "./pages/AboutPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
-import OrderConfirmationPage from "./pages/OrderConfirmationPage"; // New import
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import AddProductPage from "./pages/admin/AddProductPage"; // New import
 
 const queryClient = new QueryClient();
 
@@ -28,7 +29,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <CartProvider> {/* Wrap with CartProvider */}
+          <CartProvider>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
@@ -40,7 +41,7 @@ const App = () => (
                 <Route path="/shop/:productId" element={<ProductDetailsPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/about" element={<AboutPage />} />
-                <Route path="/order-confirmation" element={<OrderConfirmationPage />} /> {/* New route */}
+                <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
                 <Route
                   path="/checkout"
@@ -55,6 +56,14 @@ const App = () => (
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <AdminDashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/products/add"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AddProductPage />
                     </ProtectedRoute>
                   }
                 />
