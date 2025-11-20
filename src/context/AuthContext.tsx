@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type UserRole = 'admin' | 'teacher' | 'student' | null;
+export type UserRole = 'admin' | 'user' | null;
 
 interface User {
   id: string;
@@ -24,8 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Mock users for demonstration
 const mockUsers: User[] = [
   { id: 'admin1', username: 'admin', password: 'password', role: 'admin', name: 'Admin User' },
-  { id: 'teacher1', username: 'teacher', password: 'password', role: 'teacher', name: 'Teacher Jane' },
-  { id: 'student1', username: 'student', password: 'password', role: 'student', name: 'Student John' },
+  { id: 'user1', username: 'user', password: 'password', role: 'user', name: 'Regular User' },
 ];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
