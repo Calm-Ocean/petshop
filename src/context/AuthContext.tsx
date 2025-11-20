@@ -1,16 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { findUserByCredentials, User as MockUserType } from '@/data/mockUsers'; // Import from mockUsers
 
 export type UserRole = 'admin' | 'user' | null;
 
-interface User {
-  id: string;
-  username: string;
-  password: string; // In a real app, never store plain passwords
-  role: UserRole;
-  name: string;
-}
+// Re-export User type from mockUsers.ts to avoid duplication
+export type User = MockUserType;
 
 interface AuthContextType {
   user: User | null;
@@ -20,12 +16,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Mock users for demonstration
-const mockUsers: User[] = [
-  { id: 'admin1', username: 'admin', password: 'password', role: 'admin', name: 'Admin User' },
-  { id: 'user1', username: 'user', password: 'password', role: 'user', name: 'Regular User' },
-];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -37,9 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (username: string, password: string): boolean => {
-    const foundUser = mockUsers.find(
-      (u) => u.username === username && u.password === password
-    );
+    const foundUser = findUserByCredentials(username, password);
     if (foundUser) {
       setUser(foundUser);
       setRole(foundUser.role);
