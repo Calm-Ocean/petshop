@@ -9,13 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import { addOrder } from '@/data/mockOrders'; // New import
+import { useAuth } from '@/context/AuthContext'; // New import
 
 const CheckoutPage = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
+  const { user } = useAuth(); // Get current user
   const navigate = useNavigate();
 
   const [shippingDetails, setShippingDetails] = useState({
-    fullName: '',
+    fullName: user?.name || '', // Pre-fill with user's name if available
     address: '',
     city: '',
     zipCode: '',
@@ -35,11 +38,26 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Simulate order processing
-    console.log("Placing order with details:", shippingDetails);
-    console.log("Order items:", cartItems);
-    console.log("Order total:", cartTotal);
+    if (!user) {
+      toast.error("You must be logged in to place an order.");
+      navigate('/login');
+      return;
+    }
 
+    // Create the new order object
+    const newOrder = {
+      userId: user.id,
+      customerName: shippingDetails.fullName,
+      shippingAddress: shippingDetails,
+      items: cartItems.map(item => ({
+        ...item, // Include all product details
+        quantity: item.quantity,
+      })),
+      totalAmount: cartTotal,
+      status: 'pending' as const, // Initial status
+    };
+
+    addOrder(newOrder); // Add the order to our mock data
     clearCart(); // Clear the cart after "placing" the order
     toast.success("Order placed successfully!");
     navigate('/order-confirmation'); // Redirect to confirmation page

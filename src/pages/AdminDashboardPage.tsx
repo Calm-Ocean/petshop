@@ -15,13 +15,13 @@ const AdminDashboardPage = () => {
         <Link to="/admin/products/add">
           <Button>Add New Product</Button>
         </Link>
-        <Link to="/admin/products"> {/* Updated link */}
+        <Link to="/admin/products">
           <Button>Manage Products</Button>
         </Link>
         <Link to="/admin/users">
           <Button variant="outline">Manage Users</Button>
         </Link>
-        <Link to="/admin/orders">
+        <Link to="/admin/orders"> {/* New link */}
           <Button variant="secondary">Manage Orders</Button>
         </Link>
       </div>
