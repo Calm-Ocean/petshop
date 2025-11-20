@@ -4,14 +4,14 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/context/CartContext'; // New import
-import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle } from 'lucide-react'; // Added UserCircle icon
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge'; // New import
+import { Badge } from '@/components/ui/badge';
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();
-  const { cartItemCount } = useCart(); // Use cart context
+  const { cartItemCount } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -57,6 +57,11 @@ const Navbar = () => {
                   </Button>
                 </Link>
               )}
+              <Link to="/my-account"> {/* New "My Account" link */}
+                <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+                  <UserCircle className="h-4 w-4 mr-2" /> My Account
+                </Button>
+              </Link>
               <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" /> Logout
               </Button>

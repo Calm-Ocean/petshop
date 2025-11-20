@@ -22,8 +22,10 @@ import AddProductPage from "./pages/admin/AddProductPage";
 import ManageProductsPage from "./pages/admin/ManageProductsPage";
 import EditProductPage from "./pages/admin/EditProductPage";
 import ManageOrdersPage from "./pages/admin/ManageOrdersPage";
-import ManageUsersPage from "./pages/admin/ManageUsersPage"; // New import
-import EditUserPage from "./pages/admin/EditUserPage"; // New import
+import ManageUsersPage from "./pages/admin/ManageUsersPage";
+import EditUserPage from "./pages/admin/EditUserPage";
+import UserAccountPage from "./pages/UserAccountPage"; // New import
+import UserOrderHistoryPage from "./pages/UserOrderHistoryPage"; // New import
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,24 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/my-account"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin', 'user']}>
+                      <UserAccountPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/my-orders"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin', 'user']}>
+                      <UserOrderHistoryPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Admin Routes */}
                 <Route
                   path="/admin/dashboard"
                   element={
