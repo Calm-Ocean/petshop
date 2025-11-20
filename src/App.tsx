@@ -4,24 +4,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import TeacherDashboard from "./pages/teacher/TeacherDashboard";
-import StudentDashboard from "./pages/student/StudentDashboard";
-import ManageCourses from "./pages/admin/ManageCourses";
-import ManageUsers from "./pages/admin/ManageUsers";
-import TeacherCourses from "./pages/teacher/TeacherCourses";
-import StudentCourses from "./pages/student/StudentCourses";
-import TeacherAssignments from "./pages/teacher/TeacherAssignments";
-import StudentGrades from "./pages/student/StudentGrades";
-import TeacherGradebook from "./pages/teacher/TeacherGradebook";
-import StudentAssignments from "./pages/student/StudentAssignments";
-import CourseDetailsPage from "./pages/CourseDetailsPage";
-import StudentCalendar from "./pages/student/StudentCalendar"; // New import
-import TeacherCalendar from "./pages/teacher/TeacherCalendar"; // New import
+import MainLayout from "./components/MainLayout";
+import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import HomePage from "./pages/HomePage";
+import ShopPage from "./pages/ShopPage";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AboutPage from "./pages/AboutPage";
 
 const queryClient = new QueryClient();
 
@@ -33,121 +26,35 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/courses"
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <ManageCourses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <ManageUsers />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/courses"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherCourses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/assignments"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherAssignments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/gradebook"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherGradebook />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/calendar" // New route
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherCalendar />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={['student']}>
-                  <StudentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student/courses"
-              element={
-                <ProtectedRoute allowedRoles={['student']}>
-                  <StudentCourses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student/assignments"
-              element={
-                <ProtectedRoute allowedRoles={['student']}>
-                  <StudentAssignments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student/grades"
-              element={
-                <ProtectedRoute allowedRoles={['student']}>
-                  <StudentGrades />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student/calendar" // New route
-              element={
-                <ProtectedRoute allowedRoles={['student']}>
-                  <StudentCalendar />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/:courseId"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'teacher', 'student']}>
-                  <CourseDetailsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<HomePage />} /> {/* Default route */}
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/about" element={<AboutPage />} />
+
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute allowedRoles={['admin', 'user']}>
+                    <CheckoutPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Add more specific admin routes here later, e.g., /admin/products, /admin/users */}
+            </Route>
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
