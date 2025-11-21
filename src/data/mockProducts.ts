@@ -8,7 +8,7 @@ export let mockProducts: Product[] = [
     price: 45.99 * 100,
     discountPrice: 39.99 * 100,
     description: 'High-quality dog food with essential nutrients for a healthy and active life. Made with real chicken and vegetables.',
-    imageUrl: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1598133894008-61f7fdb8a8c3?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 50,
   },
   {
@@ -17,7 +17,7 @@ export let mockProducts: Product[] = [
     category: 'Cat Toys', // Updated category
     price: 12.50 * 100,
     description: 'Engage your cat with this fun and interactive toy. Features a laser pointer and feather attachment.',
-    imageUrl: 'https://images.unsplash.com/photo-1514888677646-088207775e03?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1514888677646-088207775e03?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 120,
   },
   {
@@ -26,7 +26,7 @@ export let mockProducts: Product[] = [
     category: 'Grooming Supplies', // Updated category
     price: 25.00 * 100,
     description: 'Gentle grooming brush for all types of pet fur. Helps reduce shedding and keeps coats shiny.',
-    imageUrl: 'https://images.unsplash.com/photo-1583511657547-f000070a032f?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1583511657547-f000070a032f?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 80,
   },
   {
@@ -36,7 +36,7 @@ export let mockProducts: Product[] = [
     price: 75.00 * 100,
     discountPrice: 60.00 * 100,
     description: 'Luxurious and comfortable bed for your pet to relax. Soft, plush material for ultimate comfort.',
-    imageUrl: 'https://images.unsplash.com/photo-1598133894008-61f7fdb8a8c3?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1598133894008-61f7fdb8a8c3?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 30,
   },
   {
@@ -45,7 +45,7 @@ export let mockProducts: Product[] = [
     category: 'Accessories', // Updated category to fit existing categories
     price: 120.00 * 100,
     description: 'Spacious and secure cage for small animals like hamsters or guinea pigs. Easy to clean.',
-    imageUrl: 'https://images.unsplash.com/photo-1596229800843-11620916049d?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1596229800843-11620916049d?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 15,
   },
   {
@@ -55,7 +55,7 @@ export let mockProducts: Product[] = [
     price: 89.99 * 100,
     discountPrice: 79.99 * 100,
     description: 'Everything you need to start your first aquarium. Includes tank, filter, heater, and decorations.',
-    imageUrl: 'https://images.unsplash.com/photo-1522069169770-1d771879e933?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1522069169770-1d771879e933?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 20,
   },
   {
@@ -64,7 +64,7 @@ export let mockProducts: Product[] = [
     category: 'Snacks', // New product for Snacks
     price: 15.00 * 100,
     description: 'Delicious and healthy treats for your dog, perfect for training or rewards.',
-    imageUrl: 'https://images.unsplash.com/photo-1591162022477-f7797a77014a?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1591162022477-f7797a77014a?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 100,
   },
   {
@@ -73,7 +73,7 @@ export let mockProducts: Product[] = [
     category: 'Toys', // New product for general Toys
     price: 18.75 * 100,
     description: 'A tough and durable chew toy designed for strong chewers, promoting dental health.',
-    imageUrl: 'https://images.unsplash.com/photo-1544723795-3fb6469e0453?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    imageUrl: 'https://images.unsplash.com/photo-1544723795-3fb6469e0453?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
     stock: 70,
   },
 ];
