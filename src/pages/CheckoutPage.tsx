@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { addOrder } from '@/data/mockOrders';
-import { useAuth } from '@/context/Auth/AuthContext';
+import { useAuth } from '@/context/AuthContext'; // Corrected import path
 import QRPaymentForm from '@/components/QRPaymentForm'; // Import the new component
 
 const CheckoutPage = () => {
