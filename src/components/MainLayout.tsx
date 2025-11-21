@@ -2,7 +2,8 @@
 
 import React, { ReactNode } from 'react';
 import Navbar from './Navbar';
-import { MadeWithDyad } from './made-with-dyad';
+import Footer from './Footer'; // New import
+// import { MadeWithDyad } from './made-with-dyad'; // Removed
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -15,7 +16,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <main className="flex-grow container mx-auto px-4 py-8">
         {children}
       </main>
-      <MadeWithDyad />
+      <Footer /> {/* Added Footer */}
     </div>
   );
 };
