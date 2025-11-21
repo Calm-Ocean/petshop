@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,23 +14,60 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { SquarePen, Trash2, PlusCircle } from 'lucide-react';
-import { mockProducts, deleteProduct } from '@/data/mockProducts';
+import { supabase } from '@/integrations/supabase/client';
+import { Product } from '@/types/product';
 import { toast } from 'sonner';
 
 const ManageProductsPage = () => {
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (productId: string, productName: string) => {
+  const fetchProducts = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      toast.error("Failed to fetch products: " + error.message);
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    } else {
+      setProducts(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (productId: string, productName: string) => {
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
-      if (deleteProduct(productId)) {
-        toast.success(`${productName} deleted successfully!`);
-        // Force re-render by navigating to a dummy route and back, or by updating state
-        navigate(0); // Reloads the current route
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) {
+        toast.error(`Failed to delete ${productName}: ` + error.message);
+        console.error("Error deleting product:", error);
       } else {
-        toast.error(`Failed to delete ${productName}.`);
+        toast.success(`${productName} deleted successfully!`);
+        fetchProducts(); // Re-fetch products to update the list
       }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg text-muted-foreground">Loading products...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
@@ -44,7 +81,7 @@ const ManageProductsPage = () => {
           </Link>
         </CardHeader>
         <CardContent>
-          {mockProducts.length === 0 ? (
+          {products.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               No products found. Add some to get started!
             </div>
@@ -61,15 +98,15 @@ const ManageProductsPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockProducts.map((product) => (
+                  {products.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>{product.category}</TableCell>
                       <TableCell>
-                        {product.discountPrice ? (
+                        {product.discount_price ? (
                           <div className="flex flex-col">
                             <span className="text-sm line-through text-muted-foreground">₹{product.price.toFixed(2)}</span>
-                            <span className="font-semibold">₹{product.discountPrice.toFixed(2)}</span>
+                            <span className="font-semibold">₹{product.discount_price.toFixed(2)}</span>
                           </div>
                         ) : (
                           <span className="font-semibold">₹{product.price.toFixed(2)}</span>

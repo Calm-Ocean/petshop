@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { mockProducts, updateProduct } from '@/data/mockProducts';
+import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
 import { ArrowLeft } from 'lucide-react';
 
@@ -16,15 +16,29 @@ const EditProductPage = () => {
   const navigate = useNavigate();
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const foundProduct = mockProducts.find(p => p.id === productId);
-    if (foundProduct) {
-      setProduct(foundProduct);
-    } else {
-      toast.error("Product not found.");
-      navigate('/admin/products');
-    }
+    const fetchProduct = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) {
+        toast.error("Failed to fetch product details: " + error.message);
+        console.error("Error fetching product:", error);
+        navigate('/admin/products');
+      } else {
+        setProduct(data);
+      }
+      setLoading(false);
+    };
+
+    fetchProduct();
   }, [productId, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -33,34 +47,56 @@ const EditProductPage = () => {
       if (!prev) return null;
       return {
         ...prev,
-        [id]: id === 'price' || id === 'discountPrice' || id === 'stock' ? parseFloat(value) || 0 : value,
+        [id]: id === 'price' || id === 'discount_price' || id === 'stock' ? (value === '' ? undefined : parseFloat(value) || 0) : value,
       };
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     if (!product) return;
 
     if (!product.name || !product.category || !product.description || product.price <= 0 || product.stock < 0) {
       toast.error("Please fill in all required fields and ensure price/stock are valid.");
+      setSubmitting(false);
       return;
     }
 
-    if (updateProduct(product)) {
+    const { error } = await supabase
+      .from('products')
+      .update({
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        discount_price: product.discount_price,
+        description: product.description,
+        image_url: product.image_url,
+        stock: product.stock,
+      })
+      .eq('id', product.id);
+
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(`Failed to update ${product.name}: ` + error.message);
+      console.error("Error updating product:", error);
+    } else {
       toast.success(`${product.name} updated successfully!`);
       navigate('/admin/products');
-    } else {
-      toast.error(`Failed to update ${product.name}.`);
     }
   };
 
-  if (!product) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-muted-foreground">Loading product details...</p>
       </div>
     );
+  }
+
+  if (!product) {
+    return null; // Should be handled by navigation in useEffect
   }
 
   return (
@@ -88,8 +124,8 @@ const EditProductPage = () => {
                 <Input id="price" type="number" step="0.01" min="0.01" required value={product.price} onChange={handleInputChange} />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="discountPrice">Discount Price (Optional)</Label>
-                <Input id="discountPrice" type="number" step="0.01" min="0" value={product.discountPrice || ''} onChange={handleInputChange} />
+                <Label htmlFor="discount_price">Discount Price (Optional)</Label>
+                <Input id="discount_price" type="number" step="0.01" min="0" value={product.discount_price || ''} onChange={handleInputChange} />
               </div>
             </div>
             <div className="grid gap-2">
@@ -101,11 +137,11 @@ const EditProductPage = () => {
               <Textarea id="description" required value={product.description} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-              <Input id="imageUrl" type="text" value={product.imageUrl} onChange={handleInputChange} placeholder="e.g., /placeholder.svg" />
+              <Label htmlFor="image_url">Image URL (Optional)</Label>
+              <Input id="image_url" type="text" value={product.image_url} onChange={handleInputChange} placeholder="e.g., /placeholder.svg" />
             </div>
-            <Button type="submit" size="lg" className="w-full">
-              Update Product
+            <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+              {submitting ? 'Updating Product...' : 'Update Product'}
             </Button>
           </form>
         </CardContent>

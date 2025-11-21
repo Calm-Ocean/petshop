@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { mockOrders, Order } from '@/data/mockOrders';
+import { supabase } from '@/integrations/supabase/client';
+import { Order } from '@/types/product';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ArrowLeft, History } from 'lucide-react';
 
@@ -36,7 +38,46 @@ const getStatusBadgeVariant = (status: Order['status']) => {
 };
 
 const UserOrderHistoryPage = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+
+  useEffect(() => {
+    const fetchUserOrders = async () => {
+      if (!user) {
+        setLoadingOrders(false);
+        return;
+      }
+
+      setLoadingOrders(true);
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('order_date', { ascending: false });
+
+      if (error) {
+        toast.error("Failed to fetch your orders: " + error.message);
+        console.error("Error fetching user orders:", error);
+        setUserOrders([]);
+      } else {
+        setUserOrders(data || []);
+      }
+      setLoadingOrders(false);
+    };
+
+    if (!authLoading) { // Only fetch orders once auth state is resolved
+      fetchUserOrders();
+    }
+  }, [user, authLoading]);
+
+  if (authLoading || loadingOrders) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg text-muted-foreground">Loading order history...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -51,8 +92,6 @@ const UserOrderHistoryPage = () => {
       </div>
     );
   }
-
-  const userOrders = mockOrders.filter(order => order.userId === user.id);
 
   return (
     <div className="py-8 max-w-5xl mx-auto">
@@ -95,8 +134,8 @@ const UserOrderHistoryPage = () => {
                   {userOrders.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
-                      <TableCell>{format(new Date(order.orderDate), 'PPP')}</TableCell>
-                      <TableCell>₹{order.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell>{format(new Date(order.order_date), 'PPP')}</TableCell>
+                      <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(order.status)}>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

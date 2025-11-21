@@ -8,9 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User as UserIcon, History } from 'lucide-react';
 
 const UserAccountPage = () => {
-  const { user } = useAuth();
+  const { user, profile, loading } = useAuth();
 
-  if (!user) {
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg text-muted-foreground">Loading account details...</p>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
     return (
       <div className="text-center py-12">
         <h1 className="text-4xl font-bold mb-4">Access Denied</h1>
@@ -35,18 +43,21 @@ const UserAccountPage = () => {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <p className="text-muted-foreground">Email:</p>
+              <p className="text-lg font-medium">{user.email}</p>
+            </div>
+            <div>
               <p className="text-muted-foreground">Username:</p>
-              <p className="text-lg font-medium">{user.username}</p>
+              <p className="text-lg font-medium">{profile.username || 'N/A'}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Full Name:</p>
-              <p className="text-lg font-medium">{user.name}</p>
+              <p className="text-lg font-medium">{profile.name || 'N/A'}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Role:</p>
-              <p className="text-lg font-medium capitalize">{user.role}</p>
+              <p className="text-lg font-medium capitalize">{profile.role}</p>
             </div>
-            {/* Add more user details here if available, e.g., email, address */}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
@@ -55,7 +66,6 @@ const UserAccountPage = () => {
                 <History className="h-4 w-4 mr-2" /> View Order History
               </Button>
             </Link>
-            {/* Potentially add an "Edit Profile" button here */}
           </div>
         </CardContent>
       </Card>

@@ -32,21 +32,9 @@ export const mockCategories: Category[] = [
     description: 'Supplies for your aquatic pets and their habitats.',
   },
   {
-    id: 'cat6',
-    name: 'Snacks',
-    imageUrl: 'https://images.unsplash.com/photo-1591162022477-f7797a77014a?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Placeholder image for snacks
-    description: 'Delicious and healthy treats for all pets.',
-  },
-  {
     id: 'cat7',
     name: 'Accessories',
     imageUrl: 'https://images.unsplash.com/photo-1544723795-3fb6469e0453?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Placeholder image for accessories
     description: 'Stylish and practical accessories for your furry friends.',
-  },
-  {
-    id: 'cat8',
-    name: 'Toys',
-    imageUrl: 'https://images.unsplash.com/photo-1591162022477-f7797a77014a?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Placeholder image for toys
-    description: 'Fun and engaging toys for endless playtime.',
   },
 ];

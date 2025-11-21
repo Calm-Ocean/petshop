@@ -1,21 +1,54 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { mockProducts } from '@/data/mockProducts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, ArrowLeft } from 'lucide-react';
-import { useCart } from '@/context/CartContext'; // New import
-import { Input } from '@/components/ui/input'; // New import
-import { Label } from '@/components/ui/label'; // New import
+import { useCart } from '@/context/CartContext';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
+import { Product } from '@/types/product';
+import { toast } from 'sonner';
 
 const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
-  const product = mockProducts.find((p) => p.id === productId);
-  const { addToCart } = useCart(); // Use cart context
-  const [quantity, setQuantity] = React.useState(1); // State for quantity
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+  const [quantity, setQuantity] = React.useState(1);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) {
+        toast.error("Failed to fetch product details: " + error.message);
+        console.error("Error fetching product:", error);
+        setProduct(null);
+      } else {
+        setProduct(data);
+      }
+      setLoading(false);
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg text-muted-foreground">Loading product details...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -61,7 +94,7 @@ const ProductDetailsPage = () => {
       <Card className="flex flex-col md:flex-row items-center md:items-start p-6 gap-8">
         <div className="md:w-1/2 lg:w-1/3">
           <img
-            src={product.imageUrl}
+            src={product.image_url}
             alt={product.name}
             className="w-full h-auto object-cover rounded-lg shadow-md"
           />
@@ -78,12 +111,12 @@ const ProductDetailsPage = () => {
               {product.description}
             </p>
             <div className="flex items-baseline space-x-4">
-              {product.discountPrice ? (
+              {product.discount_price ? (
                 <>
-                  <span className="text-3xl font-bold text-primary">₹{product.discountPrice.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-primary">₹{product.discount_price.toFixed(2)}</span>
                   <span className="text-lg text-muted-foreground line-through">₹{product.price.toFixed(2)}</span>
                   <Badge variant="destructive">
-                    Save {((1 - product.discountPrice / product.price) * 100).toFixed(0)}%
+                    Save {((1 - product.discount_price / product.price) * 100).toFixed(0)}%
                   </Badge>
                 </>
               ) : (

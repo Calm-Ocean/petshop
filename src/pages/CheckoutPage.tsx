@@ -9,23 +9,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { addOrder } from '@/data/mockOrders';
-import { useAuth } from '@/context/AuthContext'; // Corrected import path
-import QRPaymentForm from '@/components/QRPaymentForm'; // Import the new component
+import { useAuth } from '@/context/AuthContext';
+import QRPaymentForm from '@/components/QRPaymentForm';
+import { supabase } from '@/integrations/supabase/client';
+import { OrderItem } from '@/types/product';
 
 const CheckoutPage = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   const [shippingDetails, setShippingDetails] = useState({
-    fullName: user?.name || '',
+    fullName: profile?.name || '',
     address: '',
     city: '',
     zipCode: '',
     country: '',
   });
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [submittingOrder, setSubmittingOrder] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -46,7 +48,6 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Basic validation for shipping details
     const { fullName, address, city, zipCode, country } = shippingDetails;
     if (!fullName || !address || !city || !zipCode || !country) {
       toast.error("Please fill in all shipping details.");
@@ -56,23 +57,80 @@ const CheckoutPage = () => {
     setShowPaymentForm(true);
   };
 
-  const handlePaymentSuccess = (transactionId: string) => {
-    // Create the new order object
-    const newOrder = {
-      userId: user!.id, // user is guaranteed to exist here due to earlier check
-      customerName: shippingDetails.fullName,
-      shippingAddress: shippingDetails,
-      items: cartItems.map(item => ({
-        ...item,
-        quantity: item.quantity,
-      })),
-      totalAmount: cartTotal,
-      status: 'pending' as const, // Initial status, awaiting manual verification
-      transactionId: transactionId, // Store the submitted transaction ID
-    };
+  const handlePaymentSuccess = async (transactionId: string) => {
+    setSubmittingOrder(true);
+    if (!user) {
+      toast.error("User not logged in.");
+      setSubmittingOrder(false);
+      return;
+    }
 
-    addOrder(newOrder);
+    const orderItemsForDb: OrderItem[] = cartItems.map(item => ({
+      product_id: item.id,
+      product_name: item.name,
+      product_price: item.discount_price !== undefined ? item.discount_price : item.price,
+      quantity: item.quantity,
+      image_url: item.image_url,
+    }));
+
+    const { data: orderData, error: orderError } = await supabase
+      .from('orders')
+      .insert([
+        {
+          user_id: user.id,
+          customer_name: shippingDetails.fullName,
+          shipping_address: shippingDetails, // Stored as JSONB
+          total_amount: cartTotal,
+          status: 'pending',
+          transaction_id: transactionId,
+        },
+      ])
+      .select()
+      .single();
+
+    if (orderError || !orderData) {
+      toast.error("Failed to create order: " + orderError?.message);
+      console.error("Error creating order:", orderError);
+      setSubmittingOrder(false);
+      return;
+    }
+
+    // Insert order items
+    const orderItemsWithOrderId = orderItemsForDb.map(item => ({
+      ...item,
+      order_id: orderData.id,
+    }));
+
+    const { error: orderItemsError } = await supabase
+      .from('order_items')
+      .insert(orderItemsWithOrderId);
+
+    if (orderItemsError) {
+      toast.error("Failed to save order items: " + orderItemsError.message);
+      console.error("Error saving order items:", orderItemsError);
+      // Optionally, you might want to roll back the order creation here
+      setSubmittingOrder(false);
+      return;
+    }
+
+    // Update product stock
+    const stockUpdatePromises = cartItems.map(item =>
+      supabase
+        .from('products')
+        .update({ stock: item.stock - item.quantity })
+        .eq('id', item.id)
+    );
+    const stockUpdateResults = await Promise.all(stockUpdatePromises);
+    stockUpdateResults.forEach((result, index) => {
+      if (result.error) {
+        console.error(`Failed to update stock for product ${cartItems[index].name}:`, result.error.message);
+        // toast.error(`Failed to update stock for ${cartItems[index].name}.`); // Consider if this should block checkout
+      }
+    });
+
+
     clearCart();
+    setSubmittingOrder(false);
     navigate('/order-confirmation');
   };
 
@@ -122,7 +180,7 @@ const CheckoutPage = () => {
                   <Label htmlFor="country">Country</Label>
                   <Input id="country" type="text" required value={shippingDetails.country} onChange={handleInputChange} />
                 </div>
-                <Button type="submit" size="lg" className="w-full">
+                <Button type="submit" size="lg" className="w-full" disabled={submittingOrder}>
                   Proceed to Payment
                 </Button>
               </form>
@@ -144,7 +202,7 @@ const CheckoutPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {cartItems.map((item) => {
-              const price = item.discountPrice !== undefined ? item.discountPrice : item.price;
+              const price = item.discount_price !== undefined ? item.discount_price : item.price;
               return (
                 <div key={item.id} className="flex justify-between text-sm text-muted-foreground">
                   <span>{item.name} (x{item.quantity})</span>
@@ -169,7 +227,7 @@ const CheckoutPage = () => {
           </CardContent>
           <CardFooter>
             <Link to="/cart" className="w-full">
-              <Button variant="outline" className="w-full">Back to Cart</Button>
+              <Button variant="outline" className="w-full" disabled={submittingOrder}>Back to Cart</Button>
             </Link>
           </CardFooter>
         </Card>

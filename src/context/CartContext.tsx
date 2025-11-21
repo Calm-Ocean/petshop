@@ -104,7 +104,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const cartTotal = cartItems.reduce((total, item) => {
-    const price = item.discountPrice !== undefined ? item.discountPrice : item.price;
+    const price = item.discount_price !== undefined ? item.discount_price : item.price;
     return total + price * item.quantity;
   }, 0);
 
