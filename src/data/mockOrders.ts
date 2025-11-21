@@ -38,7 +38,7 @@ export let mockOrders: Order[] = [
       {
         id: 'prod1',
         name: 'Premium Dog Food',
-        category: 'Food',
+        category: 'Dog Food', // Updated category
         price: 45.99,
         discountPrice: 39.99,
         description: 'High-quality dog food with essential nutrients for a healthy and active life. Made with real chicken and vegetables.',
@@ -49,7 +49,7 @@ export let mockOrders: Order[] = [
       {
         id: 'prod2',
         name: 'Interactive Cat Toy',
-        category: 'Toys',
+        category: 'Cat Toys', // Updated category
         price: 12.50,
         description: 'Engage your cat with this fun and interactive toy. Features a laser pointer and feather attachment.',
         imageUrl: 'https://images.unsplash.com/photo-1514888677646-088207775e03?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -76,7 +76,7 @@ export let mockOrders: Order[] = [
       {
         id: 'prod4',
         name: 'Comfort Pet Bed',
-        category: 'Accessories',
+        category: 'Pet Beds', // Updated category
         price: 75.00,
         discountPrice: 60.00,
         description: 'Luxurious and comfortable bed for your pet to relax. Soft, plush material for ultimate comfort.',
