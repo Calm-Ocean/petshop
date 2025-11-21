@@ -38,21 +38,21 @@ export let mockOrders: Order[] = [
       {
         id: 'prod1',
         name: 'Premium Dog Food',
-        category: 'Dog Food', // Updated category
+        category: 'Dog Food',
         price: 45.99 * 100,
         discountPrice: 39.99 * 100,
         description: 'High-quality dog food with essential nutrients for a healthy and active life. Made with real chicken and vegetables.',
-        imageUrl: 'https://images.unsplash.com/photo-1598133894008-61f7fdb8a8c3?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
+        imageUrl: 'https://images.unsplash.com/photo-1583847268964-fd22181a787c?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
         stock: 50,
         quantity: 1,
       },
       {
         id: 'prod2',
         name: 'Interactive Cat Toy',
-        category: 'Cat Toys', // Updated category
+        category: 'Cat Toys',
         price: 12.50 * 100,
         description: 'Engage your cat with this fun and interactive toy. Features a laser pointer and feather attachment.',
-        imageUrl: 'https://images.unsplash.com/photo-1514888677646-088207775e03?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
+        imageUrl: 'https://images.unsplash.com/photo-1574144611937-017e25fd50b4?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
         stock: 120,
         quantity: 2,
       },
@@ -76,11 +76,11 @@ export let mockOrders: Order[] = [
       {
         id: 'prod4',
         name: 'Comfort Pet Bed',
-        category: 'Pet Beds', // Updated category
+        category: 'Pet Beds',
         price: 75.00 * 100,
         discountPrice: 60.00 * 100,
         description: 'Luxurious and comfortable bed for your pet to relax. Soft, plush material for ultimate comfort.',
-        imageUrl: 'https://images.unsplash.com/photo-1598133894008-61f7fdb8a8c3?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
+        imageUrl: 'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // New image
         stock: 30,
         quantity: 1,
       },
@@ -92,7 +92,7 @@ export let mockOrders: Order[] = [
 ];
 
 export const addOrder = (newOrder: Omit<Order, 'id' | 'orderDate'> & { transactionId?: string }) => {
-  const id = `order${mockOrders.length + 1}`; // Simple ID generation
+  const id = `order${mockOrders.length + 1}`;
   const orderDate = new Date().toISOString();
   const orderWithIdAndDate = { ...newOrder, id, orderDate };
   mockOrders.push(orderWithIdAndDate);
