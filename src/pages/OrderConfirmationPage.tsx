@@ -16,10 +16,10 @@ const OrderConfirmationPage = () => {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] text-center py-12">
       <CheckCircle className="h-24 w-24 text-green-500 mb-6" />
       <h1 className="text-5xl font-extrabold tracking-tight lg:text-6xl mb-4">
-        Order Placed Successfully!
+        Order Received!
       </h1>
       <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-        Thank you for your purchase. Your order has been received and will be processed shortly.
+        Thank you for your purchase. We will confirm your order, please give us 1 working day.
       </p>
       <div className="flex justify-center space-x-4">
         <Link to="/shop">
