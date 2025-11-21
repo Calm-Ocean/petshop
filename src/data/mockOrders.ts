@@ -19,6 +19,7 @@ export interface Order {
   totalAmount: number;
   orderDate: string; // ISO date string
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  transactionId?: string; // New field for transaction ID
 }
 
 export let mockOrders: Order[] = [
@@ -90,7 +91,7 @@ export let mockOrders: Order[] = [
   },
 ];
 
-export const addOrder = (newOrder: Omit<Order, 'id' | 'orderDate'>) => {
+export const addOrder = (newOrder: Omit<Order, 'id' | 'orderDate'> & { transactionId?: string }) => {
   const id = `order${mockOrders.length + 1}`; // Simple ID generation
   const orderDate = new Date().toISOString();
   const orderWithIdAndDate = { ...newOrder, id, orderDate };

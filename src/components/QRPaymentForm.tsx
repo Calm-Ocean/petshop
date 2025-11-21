@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
 
 interface QRPaymentFormProps {
   totalAmount: number;
@@ -16,31 +15,17 @@ interface QRPaymentFormProps {
 
 const QRPaymentForm = ({ totalAmount, onPaymentSuccess, onBack }: QRPaymentFormProps) => {
   const [transactionId, setTransactionId] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleTransactionSubmit = async (e: React.FormEvent) => {
+  const handleTransactionSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!transactionId.trim()) {
       toast.error("Please enter a transaction ID.");
       return;
     }
 
-    setIsProcessing(true);
-    const loadingToastId = toast.loading("Verifying payment...");
-
-    // Simulate API call for payment verification
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate network delay
-
-    toast.dismiss(loadingToastId);
-
-    // Mock verification logic
-    if (transactionId.toLowerCase().includes('success')) { // Simple mock success condition
-      toast.success("Payment verified successfully!");
-      onPaymentSuccess(transactionId);
-    } else {
-      toast.error("Payment verification failed. Please check your transaction ID and try again.");
-    }
-    setIsProcessing(false);
+    // No immediate verification. Just submit the ID.
+    toast.info("Transaction ID submitted. Your order is awaiting payment verification.");
+    onPaymentSuccess(transactionId);
   };
 
   return (
@@ -71,20 +56,12 @@ const QRPaymentForm = ({ totalAmount, onPaymentSuccess, onBack }: QRPaymentFormP
               required
               value={transactionId}
               onChange={(e) => setTransactionId(e.target.value)}
-              disabled={isProcessing}
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isProcessing}>
-            {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              "Submit Transaction ID"
-            )}
+          <Button type="submit" className="w-full">
+            Submit Payment
           </Button>
-          <Button type="button" variant="outline" className="w-full" onClick={onBack} disabled={isProcessing}>
+          <Button type="button" variant="outline" className="w-full" onClick={onBack}>
             Back to Shipping
           </Button>
         </form>

@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { addOrder } from '@/data/mockOrders';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/Auth/AuthContext';
 import QRPaymentForm from '@/components/QRPaymentForm'; // Import the new component
 
 const CheckoutPage = () => {
@@ -67,8 +67,8 @@ const CheckoutPage = () => {
         quantity: item.quantity,
       })),
       totalAmount: cartTotal,
-      status: 'pending' as const, // Initial status
-      // In a real app, you might also store the transactionId here
+      status: 'pending' as const, // Initial status, awaiting manual verification
+      transactionId: transactionId, // Store the submitted transaction ID
     };
 
     addOrder(newOrder);
