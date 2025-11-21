@@ -18,7 +18,7 @@ const AddProductPage = () => {
     category: '',
     price: 0,
     description: '',
-    imageUrl: '/placeholder.svg', // Default placeholder image
+    imageUrl: 'https://images.unsplash.com/photo-1548247092-a9749397356b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default placeholder image
     stock: 0,
   });
 
@@ -74,7 +74,7 @@ const AddProductPage = () => {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-              <Input id="imageUrl" type="text" value={product.imageUrl} onChange={handleInputChange} placeholder="e.g., /placeholder.svg" />
+              <Input id="imageUrl" type="text" value={product.imageUrl} onChange={handleInputChange} placeholder="e.g., https://example.com/image.jpg" />
             </div>
             <Button type="submit" size="lg" className="w-full">
               Add Product
