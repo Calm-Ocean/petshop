@@ -7,43 +7,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { UserProfile, UserRole } from '@/context/AuthContext';
+import { mockUsers, updateUser, User } from '@/data/mockUsers';
 import { ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserRole } from '@/context/AuthContext';
 
 const EditUserPage = () => {
   const navigate = useNavigate();
   const { userId } = useParams<{ userId: string }>();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, name, role')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        toast.error("User not found: " + error.message);
-        console.error("Error fetching user profile:", error);
-        navigate('/admin/users');
-      } else {
-        setUserProfile(data);
-      }
-      setLoading(false);
-    };
-
-    fetchUserProfile();
+    const foundUser = mockUsers.find(u => u.id === userId);
+    if (foundUser) {
+      setUser(foundUser);
+    } else {
+      toast.error("User not found.");
+      navigate('/admin/users');
+    }
   }, [userId, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setUserProfile((prev) => {
+    setUser((prev) => {
       if (!prev) return null;
       return {
         ...prev,
@@ -53,7 +39,7 @@ const EditUserPage = () => {
   };
 
   const handleRoleChange = (value: UserRole) => {
-    setUserProfile((prev) => {
+    setUser((prev) => {
       if (!prev) return null;
       return {
         ...prev,
@@ -62,39 +48,24 @@ const EditUserPage = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-    if (!userProfile) return;
+    if (!user) return;
 
-    if (!userProfile.username || !userProfile.name || !userProfile.role) {
+    if (!user.username || !user.name || !user.role) {
       toast.error("Please fill in all required fields.");
-      setSubmitting(false);
       return;
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        username: userProfile.username,
-        name: userProfile.name,
-        role: userProfile.role,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userProfile.id);
-
-    setSubmitting(false);
-
-    if (error) {
-      toast.error(`Failed to update user ${userProfile.username}: ` + error.message);
-      console.error("Error updating user profile:", error);
-    } else {
-      toast.success(`User ${userProfile.username} updated successfully!`);
+    if (updateUser(user)) {
+      toast.success(`User ${user.username} updated successfully!`);
       navigate('/admin/users');
+    } else {
+      toast.error(`Failed to update user ${user.username}.`);
     }
   };
 
-  if (loading) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-muted-foreground">Loading user details...</p>
@@ -102,15 +73,11 @@ const EditUserPage = () => {
     );
   }
 
-  if (!userProfile) {
-    return null; // Should be handled by navigation in useEffect
-  }
-
   return (
     <div className="flex items-center justify-center py-12">
       <Card className="w-full max-w-2xl">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-3xl font-bold">Edit User: {userProfile.username || userProfile.id}</CardTitle>
+          <CardTitle className="text-3xl font-bold">Edit User: {user.username}</CardTitle>
           <Button variant="outline" onClick={() => navigate('/admin/users')}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Users
           </Button>
@@ -119,15 +86,15 @@ const EditUserPage = () => {
           <form onSubmit={handleSubmit} className="grid gap-6">
             <div className="grid gap-2">
               <Label htmlFor="username">Username</Label>
-              <Input id="username" type="text" required value={userProfile.username || ''} onChange={handleInputChange} />
+              <Input id="username" type="text" required value={user.username} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" type="text" required value={userProfile.name || ''} onChange={handleInputChange} />
+              <Input id="name" type="text" required value={user.name} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={userProfile.role || ''} onValueChange={handleRoleChange}>
+              <Select value={user.role || ''} onValueChange={handleRoleChange}>
                 <SelectTrigger id="role">
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
@@ -137,8 +104,9 @@ const EditUserPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? 'Updating User...' : 'Update User'}
+            {/* Password field is omitted for simplicity in mock data editing */}
+            <Button type="submit" size="lg" className="w-full">
+              Update User
             </Button>
           </form>
         </CardContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,8 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { Order } from '@/types/product';
+import { mockOrders, updateOrderStatus, Order } from '@/data/mockOrders';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -37,52 +36,16 @@ const getStatusBadgeVariant = (status: Order['status']) => {
 };
 
 const ManageOrdersPage = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = React.useState(mockOrders);
 
-  const fetchOrders = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('order_date', { ascending: false });
-
-    if (error) {
-      toast.error("Failed to fetch orders: " + error.message);
-      console.error("Error fetching orders:", error);
-      setOrders([]);
-    } else {
-      setOrders(data || []);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const handleStatusChange = async (orderId: string, newStatus: Order['status']) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status: newStatus, order_date: new Date().toISOString() }) // Update order_date to reflect last change
-      .eq('id', orderId);
-
-    if (error) {
-      toast.error(`Failed to update status for order ${orderId}: ` + error.message);
-      console.error("Error updating order status:", error);
-    } else {
+  const handleStatusChange = (orderId: string, newStatus: Order['status']) => {
+    if (updateOrderStatus(orderId, newStatus)) {
+      setOrders([...mockOrders]); // Force re-render with updated mock data
       toast.success(`Order ${orderId} status updated to ${newStatus}.`);
-      fetchOrders(); // Re-fetch orders to update the list
+    } else {
+      toast.error(`Failed to update status for order ${orderId}.`);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-lg text-muted-foreground">Loading orders...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="py-8">
@@ -112,9 +75,9 @@ const ManageOrdersPage = () => {
                   {orders.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
-                      <TableCell>{order.customer_name}</TableCell>
-                      <TableCell>{format(new Date(order.order_date), 'PPP')}</TableCell>
-                      <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
+                      <TableCell>{order.customerName}</TableCell>
+                      <TableCell>{format(new Date(order.orderDate), 'PPP')}</TableCell>
+                      <TableCell>₹{order.totalAmount.toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(order.status)}>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

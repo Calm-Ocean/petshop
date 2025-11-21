@@ -7,14 +7,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/context/CartContext'; // New import
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  const { addToCart } = useCart();
+  const { addToCart } = useCart(); // Use cart context
 
   const handleAddToCart = () => {
     addToCart(product);
@@ -24,7 +24,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <Link to={`/shop/${product.id}`} className="block">
         <img
-          src={product.image_url}
+          src={product.imageUrl}
           alt={product.name}
           className="w-full h-48 object-cover"
         />
@@ -39,9 +39,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </Badge>
       </CardHeader>
       <CardContent className="flex items-baseline justify-between">
-        {product.discount_price ? (
+        {product.discountPrice ? (
           <div className="flex items-baseline space-x-2">
-            <span className="text-xl font-bold text-primary">₹{product.discount_price.toFixed(2)}</span>
+            <span className="text-xl font-bold text-primary">₹{product.discountPrice.toFixed(2)}</span>
             <span className="text-sm text-muted-foreground line-through">₹{product.price.toFixed(2)}</span>
           </div>
         ) : (

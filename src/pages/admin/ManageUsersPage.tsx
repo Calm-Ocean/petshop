@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,65 +14,30 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { SquarePen, Trash2, PlusCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { UserProfile, UserRole } from '@/context/AuthContext';
+import { mockUsers, deleteUser } from '@/data/mockUsers';
 import { toast } from 'sonner';
 
 const ManageUsersPage = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = React.useState(mockUsers); // Use local state to trigger re-renders
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, username, name, role')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      toast.error("Failed to fetch users: " + error.message);
-      console.error("Error fetching users:", error);
-      setUsers([]);
-    } else {
-      setUsers(data || []);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const handleDelete = async (userId: string, username: string | null) => {
-    if (window.confirm(`Are you sure you want to delete user "${username || userId}"? This will also delete their auth.users entry.`)) {
-      // Deleting from auth.users will cascade delete from public.profiles due to foreign key constraint
-      const { error } = await supabase.auth.admin.deleteUser(userId);
-
-      if (error) {
-        toast.error(`Failed to delete user ${username || userId}: ` + error.message);
-        console.error("Error deleting user:", error);
+  const handleDelete = (userId: string, username: string) => {
+    if (window.confirm(`Are you sure you want to delete user "${username}"?`)) {
+      if (deleteUser(userId)) {
+        setUsers([...mockUsers]); // Update local state to reflect changes
+        toast.success(`User ${username} deleted successfully!`);
       } else {
-        toast.success(`User ${username || userId} deleted successfully!`);
-        fetchUsers(); // Re-fetch users to update the list
+        toast.error(`Failed to delete user ${username}.`);
       }
     }
   };
-
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-lg text-muted-foreground">Loading users...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="py-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-3xl font-bold">Manage Users</CardTitle>
-          {/* Registration is handled via the public /register page */}
+          {/* We don't have a direct "add user" page for admins yet, as registration is public */}
           {/* <Link to="/admin/users/add">
             <Button>
               <PlusCircle className="h-4 w-4 mr-2" /> Add New User
@@ -89,7 +54,7 @@ const ManageUsersPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Email/Username</TableHead>
+                    <TableHead>Username</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -98,8 +63,8 @@ const ManageUsersPage = () => {
                 <TableBody>
                   {users.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.username || user.id}</TableCell>
-                      <TableCell>{user.name || 'N/A'}</TableCell>
+                      <TableCell className="font-medium">{user.username}</TableCell>
+                      <TableCell>{user.name}</TableCell>
                       <TableCell>
                         <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
                           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}

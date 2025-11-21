@@ -7,22 +7,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
 
 const RegisterPage = () => {
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { register, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await register(email, password, name);
-    if (success) {
-      navigate('/login'); // Redirect to login after successful registration
-    }
-    // toast messages are handled within AuthContext
+    // In a real application, this would interact with your backend (e.g., Supabase)
+    // to create a new user. For now, it's a placeholder.
+    toast.info("Registration is not yet implemented. Please use mock users 'admin' or 'user' to login.");
+    console.log('Register attempt:', { username, email, password });
+    // Optionally redirect to login after "registration"
+    navigate('/login');
   };
 
   return (
@@ -35,14 +34,14 @@ const RegisterPage = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="name"
+                id="username"
                 type="text"
-                placeholder="Your Full Name"
+                placeholder="Your username"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
@@ -66,8 +65,8 @@ const RegisterPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Registering...' : 'Register'}
+            <Button type="submit" className="w-full">
+              Register
             </Button>
           </form>
         </CardContent>
