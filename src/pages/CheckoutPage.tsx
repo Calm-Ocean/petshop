@@ -9,28 +9,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { addOrder } from '@/data/mockOrders'; // New import
-import { useAuth } from '@/context/AuthContext'; // New import
+import { addOrder } from '@/data/mockOrders';
+import { useAuth } from '@/context/AuthContext';
+import QRPaymentForm from '@/components/QRPaymentForm'; // Import the new component
 
 const CheckoutPage = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
-  const { user } = useAuth(); // Get current user
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [shippingDetails, setShippingDetails] = useState({
-    fullName: user?.name || '', // Pre-fill with user's name if available
+    fullName: user?.name || '',
     address: '',
     city: '',
     zipCode: '',
     country: '',
   });
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setShippingDetails((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (cartItems.length === 0) {
       toast.error("Your cart is empty. Please add items before checking out.");
@@ -44,23 +46,34 @@ const CheckoutPage = () => {
       return;
     }
 
+    // Basic validation for shipping details
+    const { fullName, address, city, zipCode, country } = shippingDetails;
+    if (!fullName || !address || !city || !zipCode || !country) {
+      toast.error("Please fill in all shipping details.");
+      return;
+    }
+
+    setShowPaymentForm(true);
+  };
+
+  const handlePaymentSuccess = (transactionId: string) => {
     // Create the new order object
     const newOrder = {
-      userId: user.id,
+      userId: user!.id, // user is guaranteed to exist here due to earlier check
       customerName: shippingDetails.fullName,
       shippingAddress: shippingDetails,
       items: cartItems.map(item => ({
-        ...item, // Include all product details
+        ...item,
         quantity: item.quantity,
       })),
       totalAmount: cartTotal,
       status: 'pending' as const, // Initial status
+      // In a real app, you might also store the transactionId here
     };
 
-    addOrder(newOrder); // Add the order to our mock data
-    clearCart(); // Clear the cart after "placing" the order
-    toast.success("Order placed successfully!");
-    navigate('/order-confirmation'); // Redirect to confirmation page
+    addOrder(newOrder);
+    clearCart();
+    navigate('/order-confirmation');
   };
 
   if (cartItems.length === 0) {
@@ -80,40 +93,48 @@ const CheckoutPage = () => {
   return (
     <div className="py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold">Shipping Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handlePlaceOrder} className="grid gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" type="text" required value={shippingDetails.fullName} onChange={handleInputChange} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="address">Address</Label>
-                <Input id="address" type="text" required value={shippingDetails.address} onChange={handleInputChange} />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {!showPaymentForm ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold">Shipping Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleShippingSubmit} className="grid gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" type="text" required value={shippingDetails.city} onChange={handleInputChange} />
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input id="fullName" type="text" required value={shippingDetails.fullName} onChange={handleInputChange} />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="zipCode">Zip Code</Label>
-                  <Input id="zipCode" type="text" required value={shippingDetails.zipCode} onChange={handleInputChange} />
+                  <Label htmlFor="address">Address</Label>
+                  <Input id="address" type="text" required value={shippingDetails.address} onChange={handleInputChange} />
                 </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="country">Country</Label>
-                <Input id="country" type="text" required value={shippingDetails.country} onChange={handleInputChange} />
-              </div>
-              <Button type="submit" size="lg" className="w-full">
-                Place Order
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input id="city" type="text" required value={shippingDetails.city} onChange={handleInputChange} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="zipCode">Zip Code</Label>
+                    <Input id="zipCode" type="text" required value={shippingDetails.zipCode} onChange={handleInputChange} />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Input id="country" type="text" required value={shippingDetails.country} onChange={handleInputChange} />
+                </div>
+                <Button type="submit" size="lg" className="w-full">
+                  Proceed to Payment
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        ) : (
+          <QRPaymentForm
+            totalAmount={cartTotal}
+            onPaymentSuccess={handlePaymentSuccess}
+            onBack={() => setShowPaymentForm(false)}
+          />
+        )}
       </div>
 
       <div className="lg:col-span-1">
