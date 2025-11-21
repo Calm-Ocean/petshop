@@ -5,9 +5,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
-import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle } from 'lucide-react'; // Added UserCircle icon
+import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { mockCategories } from '@/data/mockCategories'; // Import mock categories
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();
@@ -32,11 +39,26 @@ const Navbar = () => {
               <Home className="h-4 w-4 mr-2" /> Home
             </Button>
           </Link>
-          <Link to="/shop">
-            <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
-              Shop
-            </Button>
-          </Link>
+
+          {/* Shop with Category Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+                Shop <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/shop">All Products</Link>
+              </DropdownMenuItem>
+              {mockCategories.map((category) => (
+                <DropdownMenuItem key={category.id} asChild>
+                  <Link to={`/shop?category=${category.name}`}>{category.name}</Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Link to="/cart">
             <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80 relative">
               <ShoppingCart className="h-4 w-4 mr-2" /> Cart
@@ -57,7 +79,7 @@ const Navbar = () => {
                   </Button>
                 </Link>
               )}
-              <Link to="/my-account"> {/* New "My Account" link */}
+              <Link to="/my-account">
                 <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
                   <UserCircle className="h-4 w-4 mr-2" /> My Account
                 </Button>
