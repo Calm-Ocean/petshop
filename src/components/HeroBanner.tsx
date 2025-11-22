@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 const HeroBanner = () => {
   return (
-    <div className="relative bg-amber-950 text-white py-20 px-4 sm:px-6 lg:px-8 rounded-lg shadow-lg overflow-hidden">
+    <div className="relative bg-gray-900 text-white py-20 px-4 sm:px-6 lg:px-8 rounded-lg shadow-lg overflow-hidden">
       <div className="absolute inset-0 z-0 opacity-20">
         {/* Background image or pattern */}
         <img
