@@ -10,14 +10,15 @@ import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRole } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from '@/context/SessionContext'; // Import useSession
 
 // Define the User type based on your Supabase profiles table
 interface UserProfileData {
   id: string;
   first_name: string | null;
   last_name: string | null;
+  email: string;
   role: UserRole;
 }
 
@@ -25,42 +26,57 @@ const EditUserPage = () => {
   const navigate = useNavigate();
   const { userId } = useParams<{ userId: string }>();
   const queryClient = useQueryClient();
+  const { session } = useSession(); // Get the current session
 
-  const { data: userProfile, isLoading, error } = useQuery<UserProfileData>({
+  const { data: userProfile, isLoading, error, refetch } = useQuery<UserProfileData>({
     queryKey: ['adminUser', userId],
     queryFn: async () => {
       if (!userId) throw new Error("User ID is missing.");
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, role')
-        .eq('id', userId)
-        .single();
+      if (!session) throw new Error("User session not found. Please log in as an admin.");
 
-      if (error) {
-        throw error;
+      const response = await fetch('https://ftzflhuktluskcyqrwny.supabase.co/functions/v1/admin-get-user-details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch user details from Edge Function');
       }
-      return data as UserProfileData;
+
+      return response.json();
     },
-    enabled: !!userId, // Only run query if userId is available
+    enabled: !!userId && !!session, // Only run query if userId and session are available
   });
 
   const updateUserMutation = useMutation({
     mutationFn: async (updatedData: Partial<UserProfileData>) => {
       if (!userId) throw new Error("User ID is missing for update.");
-      const { error } = await supabase
-        .from('profiles')
-        .update(updatedData)
-        .eq('id', userId);
+      if (!session) throw new Error("User session not found. Please log in as an admin.");
 
-      if (error) {
-        throw error;
+      const response = await fetch('https://ftzflhuktluskcyqrwny.supabase.co/functions/v1/admin-update-user-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ userId, updatedData }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update user via Edge Function');
       }
+      return response.json();
     },
     onSuccess: () => {
       toast.success(`User updated successfully!`);
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] }); // Invalidate list of users
-      queryClient.invalidateQueries({ queryKey: ['adminUser', userId] }); // Invalidate specific user
-      navigate('/admin/users');
+      refetch(); // Refetch the current user's details
     },
     onError: (err: any) => {
       toast.error(`Failed to update user: ${err.message}`);
@@ -82,11 +98,6 @@ const EditUserPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userProfile) {
-      toast.error("User data not loaded.");
-      return;
-    }
-
     // The mutation is already triggered by individual input changes.
     // This submit button can just navigate back or confirm.
     navigate('/admin/users');
@@ -127,6 +138,10 @@ const EditUserPage = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-6">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" value={userProfile.email || ''} disabled className="bg-muted" />
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="first_name">First Name</Label>
               <Input id="first_name" type="text" value={userProfile.first_name || ''} onChange={handleInputChange} />

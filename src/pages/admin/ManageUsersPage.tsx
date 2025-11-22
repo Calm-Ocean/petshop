@@ -18,70 +18,67 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserRole } from '@/context/AuthContext';
+import { useSession } from '@/context/SessionContext'; // Import useSession to get the current user's session
 
 // Define the User type based on your Supabase profiles table
 interface User {
   id: string;
   first_name: string | null;
   last_name: string | null;
-  email: string; // Assuming email is available from auth.users and can be joined or inferred
+  email: string;
   role: UserRole;
 }
 
 const ManageUsersPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { session } = useSession(); // Get the current session
 
   const { data: users, isLoading, error } = useQuery<User[]>({
     queryKey: ['adminUsers'],
     queryFn: async () => {
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, role');
-
-      if (profilesError) {
-        throw profilesError;
+      if (!session) {
+        throw new Error("User session not found. Please log in as an admin.");
       }
 
-      // Fetch emails from auth.users for a more complete user list
-      const { data: authUsers, error: authUsersError } = await supabase.auth.admin.listUsers();
-
-      if (authUsersError) {
-        throw authUsersError;
-      }
-
-      const usersWithEmails: User[] = profiles.map(profile => {
-        const authUser = authUsers.users.find(au => au.id === profile.id);
-        return {
-          id: profile.id,
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          email: authUser?.email || 'N/A', // Fallback if email not found
-          role: profile.role as UserRole,
-        };
+      const response = await fetch('https://ftzflhuktluskcyqrwny.supabase.co/functions/v1/admin-list-users', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
       });
-      return usersWithEmails;
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch users from Edge Function');
+      }
+
+      return response.json();
     },
+    enabled: !!session, // Only run query if session exists
   });
 
   const handleDelete = async (userId: string, username: string) => {
+    if (!session) {
+      toast.error("You must be logged in to perform this action.");
+      return;
+    }
+
     if (window.confirm(`Are you sure you want to delete user "${username}"? This will also delete their Supabase authentication record.`)) {
       try {
-        // Delete from public.profiles
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .delete()
-          .eq('id', userId);
+        const response = await fetch('https://ftzflhuktluskcyqrwny.supabase.co/functions/v1/admin-delete-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ userId }),
+        });
 
-        if (profileError) {
-          throw profileError;
-        }
-
-        // Delete from auth.users (this will also trigger RLS cascade delete if set up)
-        const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-
-        if (authError) {
-          throw authError;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete user via Edge Function');
         }
 
         toast.success(`User ${username} deleted successfully!`);
