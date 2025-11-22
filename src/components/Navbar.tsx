@@ -28,7 +28,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-primary text-primary-foreground p-4 shadow-md">
+    <nav className="bg-primary text-primary-foreground p-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/home" className="text-2xl font-bold flex items-center gap-2">
           <Package className="h-6 w-6" /> PetShop
