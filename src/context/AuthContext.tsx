@@ -50,7 +50,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user profile:', error);
-        toast.error('Failed to load user profile.');
+        // Display the specific error message from Supabase
+        toast.error(`Failed to load user profile: ${error.message}`);
         setUserProfile({
           id: supabaseUser.id,
           email: supabaseUser.email || 'N/A',
@@ -84,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
       } else {
-        // If no profile found, it might be a new user. Default to 'user' role.
+        // If no profile found (PGRST116 error or data is null), it might be a new user. Default to 'user' role.
         const newProfile: UserProfile = {
           id: supabaseUser.id,
           email: supabaseUser.email || 'N/A',
