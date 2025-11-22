@@ -1,48 +1,98 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { findUserByCredentials, User as MockUserType } from '@/data/mockUsers'; // Import from mockUsers
+import { supabase } from '@/integrations/supabase/client';
+import { useSession } from './SessionContext'; // Import useSession
+import { toast } from 'sonner';
 
 export type UserRole = 'admin' | 'user' | null;
 
-// Re-export User type from mockUsers.ts to avoid duplication
-export type User = MockUserType;
+// Define a more comprehensive User type based on Supabase auth.users and public.profiles
+export interface UserProfile {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
+  role: UserRole;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
   role: UserRole;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
+  isLoadingAuth: boolean; // Loading state specific to AuthContext's profile fetching
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user: supabaseUser, isLoading: isLoadingSession } = useSession();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<UserRole>(null);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
-    // In a real app, you'd check for a token in localStorage or a session
-    // For now, we'll keep it simple and assume no persistent login
-  }, []);
+    const fetchUserProfile = async () => {
+      setIsLoadingAuth(true);
+      if (supabaseUser) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, avatar_url, role')
+          .eq('id', supabaseUser.id)
+          .single();
 
-  const login = (username: string, password: string): boolean => {
-    const foundUser = findUserByCredentials(username, password);
-    if (foundUser) {
-      setUser(foundUser);
-      setRole(foundUser.role);
-      return true;
+        if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found, which is fine for new users
+          console.error('Error fetching user profile:', error);
+          toast.error('Failed to load user profile.');
+          setUserProfile({
+            id: supabaseUser.id,
+            email: supabaseUser.email || 'N/A',
+            role: 'user', // Default to user role if profile not found or error
+          });
+          setRole('user');
+        } else if (data) {
+          setUserProfile({
+            id: supabaseUser.id,
+            email: supabaseUser.email || 'N/A',
+            first_name: data.first_name || undefined,
+            last_name: data.last_name || undefined,
+            avatar_url: data.avatar_url || undefined,
+            role: data.role as UserRole,
+          });
+          setRole(data.role as UserRole);
+        } else {
+          // If no profile found, it might be a new user. Default to 'user' role.
+          setUserProfile({
+            id: supabaseUser.id,
+            email: supabaseUser.email || 'N/A',
+            role: 'user',
+          });
+          setRole('user');
+        }
+      } else {
+        setUserProfile(null);
+        setRole(null);
+      }
+      setIsLoadingAuth(false);
+    };
+
+    if (!isLoadingSession) {
+      fetchUserProfile();
     }
-    return false;
-  };
+  }, [supabaseUser, isLoadingSession]);
 
-  const logout = () => {
-    setUser(null);
-    setRole(null);
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error('Failed to log out: ' + error.message);
+    } else {
+      // SessionContext will handle the state update and toast message
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, login, logout }}>
+    <AuthContext.Provider value={{ user: userProfile, role, isLoadingAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );
