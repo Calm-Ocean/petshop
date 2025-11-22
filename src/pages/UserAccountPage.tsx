@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User as UserIcon, History } from 'lucide-react';
+import { User as UserIcon, History, MapPin } from 'lucide-react'; // Import MapPin icon
 
 const UserAccountPage = () => {
   const { user, isLoadingAuth } = useAuth();
@@ -58,7 +58,15 @@ const UserAccountPage = () => {
               <p className="text-muted-foreground">Role:</p>
               <p className="text-lg font-medium capitalize">{user.role}</p>
             </div>
-            {/* Add more user details here if available, e.g., avatar */}
+            {/* Display address details */}
+            <div className="md:col-span-2">
+              <p className="text-muted-foreground">Address:</p>
+              <p className="text-lg font-medium">
+                {user.address && user.city && user.zip_code && user.country
+                  ? `${user.address}, ${user.city}, ${user.zip_code}, ${user.country}`
+                  : 'Not provided'}
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
@@ -67,7 +75,11 @@ const UserAccountPage = () => {
                 <History className="h-4 w-4 mr-2" /> View Order History
               </Button>
             </Link>
-            {/* Potentially add an "Edit Profile" button here */}
+            <Link to="/my-account/address" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full">
+                <MapPin className="h-4 w-4 mr-2" /> Manage Address
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

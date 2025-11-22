@@ -3,11 +3,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, UserRole } from '@/context/AuthContext';
-import { SessionContextProvider } from '@/context/SessionContext'; // New import
+import { SessionContextProvider } from '@/context/SessionContext';
 import { CartProvider } from '@/context/CartContext';
 import MainLayout from '@/components/MainLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { Toaster } from '@/components/ui/sonner'; // For toast notifications
+import { Toaster } from '@/components/ui/sonner';
 
 // Pages
 import Index from '@/pages/Index';
@@ -22,22 +22,23 @@ import RegisterPage from '@/pages/RegisterPage';
 import AboutPage from '@/pages/AboutPage';
 import UserAccountPage from '@/pages/UserAccountPage';
 import UserOrderHistoryPage from '@/pages/UserOrderHistoryPage';
+import UserAddressPage from '@/pages/UserAddressPage'; // New import
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AddProductPage from '@/pages/admin/AddProductPage';
 import EditProductPage from '@/pages/admin/EditProductPage';
 import ManageProductsPage from '@/pages/admin/ManageProductsPage';
 import ManageOrdersPage from '@/pages/admin/ManageOrdersPage';
 import ManageUsersPage from '@/pages/admin/ManageUsersPage';
-import EditUserPage from '@/pages/admin/EditUserPage'; // New import for EditUserPage
+import EditUserPage from '@/pages/admin/EditUserPage';
 import NotFound from '@/pages/NotFound';
 
 const App = () => {
   return (
     <BrowserRouter>
-      <SessionContextProvider> {/* Wrap with SessionContextProvider */}
+      <SessionContextProvider>
         <AuthProvider>
           <CartProvider>
-            <Toaster richColors position="top-right" /> {/* Global toast notifications */}
+            <Toaster richColors position="top-right" />
             <MainLayout>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -55,6 +56,7 @@ const App = () => {
                 <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
                   <Route path="/my-account" element={<UserAccountPage />} />
                   <Route path="/my-orders" element={<UserOrderHistoryPage />} />
+                  <Route path="/my-account/address" element={<UserAddressPage />} /> {/* New route */}
                 </Route>
 
                 {/* Admin Protected Routes */}
@@ -65,7 +67,7 @@ const App = () => {
                   <Route path="/admin/products/edit/:productId" element={<EditProductPage />} />
                   <Route path="/admin/orders" element={<ManageOrdersPage />} />
                   <Route path="/admin/users" element={<ManageUsersPage />} />
-                  <Route path="/admin/users/edit/:userId" element={<EditUserPage />} /> {/* Corrected route for EditUserPage */}
+                  <Route path="/admin/users/edit/:userId" element={<EditUserPage />} />
                 </Route>
 
                 {/* Catch-all for 404 */}
