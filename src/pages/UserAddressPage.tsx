@@ -13,7 +13,7 @@ import { Home } from 'lucide-react';
 
 const UserAddressPage = () => {
   const navigate = useNavigate();
-  const { user, isLoadingAuth, refetchUserProfile } = useAuth(); // Assuming refetchUserProfile will be added to AuthContext
+  const { user, isLoadingAuth, refetchUserProfile } = useAuth();
   const [addressDetails, setAddressDetails] = useState({
     address: '',
     city: '',
@@ -61,7 +61,7 @@ const UserAddressPage = () => {
           city,
           zip_code,
           country,
-          updated_at: new Date().toISOString(),
+          // Removed updated_at here, as it will be handled by the database trigger
         })
         .eq('id', user.id);
 
