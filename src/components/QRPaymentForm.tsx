@@ -37,9 +37,9 @@ const QRPaymentForm = ({ totalAmount, onPaymentSuccess, onBack }: QRPaymentFormP
       <CardContent className="grid gap-6">
         <div className="flex flex-col items-center justify-center p-4 border rounded-md bg-gray-50 dark:bg-gray-900">
           <p className="text-lg font-semibold mb-2">Amount to Pay: ₹{totalAmount.toFixed(2)}</p>
-          {/* Placeholder QR Code Image */}
+          {/* Updated QR Code Image */}
           <img
-            src="/placeholder.svg" // You can replace this with a real QR code image or generator
+            src="https://github.com/Calm-Ocean/web_dev_petstore/blob/main/WhatsApp%20Image%202025-11-22%20at%2011.19.02.jpeg?raw=true" // Using the provided link
             alt="Payment QR Code"
             className="w-48 h-48 object-contain border p-2 rounded-md bg-white"
           />
