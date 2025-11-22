@@ -8,7 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User as UserIcon, History } from 'lucide-react';
 
 const UserAccountPage = () => {
-  const { user } = useAuth();
+  const { user, isLoadingAuth } = useAuth();
+
+  if (isLoadingAuth) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Loading account details...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -35,18 +43,22 @@ const UserAccountPage = () => {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-muted-foreground">Username:</p>
-              <p className="text-lg font-medium">{user.username}</p>
+              <p className="text-muted-foreground">Email:</p>
+              <p className="text-lg font-medium">{user.email}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Full Name:</p>
-              <p className="text-lg font-medium">{user.name}</p>
+              <p className="text-muted-foreground">First Name:</p>
+              <p className="text-lg font-medium">{user.first_name || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Last Name:</p>
+              <p className="text-lg font-medium">{user.last_name || 'N/A'}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Role:</p>
               <p className="text-lg font-medium capitalize">{user.role}</p>
             </div>
-            {/* Add more user details here if available, e.g., email, address */}
+            {/* Add more user details here if available, e.g., avatar */}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-6">

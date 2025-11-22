@@ -95,11 +95,12 @@ const Navbar = () => {
                   <User className="h-4 w-4 mr-2" /> Login
                 </Button>
               </Link>
-              <Link to="/register">
+              {/* Registration is handled via the login page now */}
+              {/* <Link to="/register">
                 <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
                   Register
                 </Button>
-              </Link>
+              </Link> */}
             </>
           )}
         </div>

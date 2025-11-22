@@ -7,68 +7,111 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { mockUsers, updateUser, User } from '@/data/mockUsers';
 import { ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRole } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+// Define the User type based on your Supabase profiles table
+interface UserProfileData {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  role: UserRole;
+}
 
 const EditUserPage = () => {
   const navigate = useNavigate();
   const { userId } = useParams<{ userId: string }>();
-  const [user, setUser] = useState<User | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const foundUser = mockUsers.find(u => u.id === userId);
-    if (foundUser) {
-      setUser(foundUser);
-    } else {
-      toast.error("User not found.");
+  const { data: userProfile, isLoading, error } = useQuery<UserProfileData>({
+    queryKey: ['adminUser', userId],
+    queryFn: async () => {
+      if (!userId) throw new Error("User ID is missing.");
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, role')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+      return data as UserProfileData;
+    },
+    enabled: !!userId, // Only run query if userId is available
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (updatedData: Partial<UserProfileData>) => {
+      if (!userId) throw new Error("User ID is missing for update.");
+      const { error } = await supabase
+        .from('profiles')
+        .update(updatedData)
+        .eq('id', userId);
+
+      if (error) {
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success(`User updated successfully!`);
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] }); // Invalidate list of users
+      queryClient.invalidateQueries({ queryKey: ['adminUser', userId] }); // Invalidate specific user
       navigate('/admin/users');
-    }
-  }, [userId, navigate]);
+    },
+    onError: (err: any) => {
+      toast.error(`Failed to update user: ${err.message}`);
+    },
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setUser((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        [id]: value,
-      };
-    });
+    if (userProfile) {
+      updateUserMutation.mutate({ [id]: value });
+    }
   };
 
   const handleRoleChange = (value: UserRole) => {
-    setUser((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        role: value,
-      };
-    });
+    if (userProfile) {
+      updateUserMutation.mutate({ role: value });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
-    if (!user.username || !user.name || !user.role) {
-      toast.error("Please fill in all required fields.");
+    if (!userProfile) {
+      toast.error("User data not loaded.");
       return;
     }
 
-    if (updateUser(user)) {
-      toast.success(`User ${user.username} updated successfully!`);
-      navigate('/admin/users');
-    } else {
-      toast.error(`Failed to update user ${user.username}.`);
-    }
+    // The mutation is already triggered by individual input changes.
+    // This submit button can just navigate back or confirm.
+    navigate('/admin/users');
   };
 
-  if (!user) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-muted-foreground">Loading user details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-destructive">Error loading user: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">User not found.</p>
       </div>
     );
   }
@@ -77,7 +120,7 @@ const EditUserPage = () => {
     <div className="flex items-center justify-center py-12">
       <Card className="w-full max-w-2xl">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-3xl font-bold">Edit User: {user.username}</CardTitle>
+          <CardTitle className="text-3xl font-bold">Edit User: {userProfile.first_name} {userProfile.last_name}</CardTitle>
           <Button variant="outline" onClick={() => navigate('/admin/users')}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Users
           </Button>
@@ -85,16 +128,16 @@ const EditUserPage = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" type="text" required value={user.username} onChange={handleInputChange} />
+              <Label htmlFor="first_name">First Name</Label>
+              <Input id="first_name" type="text" value={userProfile.first_name || ''} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" type="text" required value={user.name} onChange={handleInputChange} />
+              <Label htmlFor="last_name">Last Name</Label>
+              <Input id="last_name" type="text" value={userProfile.last_name || ''} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={user.role || ''} onValueChange={handleRoleChange}>
+              <Select value={userProfile.role || ''} onValueChange={handleRoleChange}>
                 <SelectTrigger id="role">
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
@@ -104,9 +147,8 @@ const EditUserPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            {/* Password field is omitted for simplicity in mock data editing */}
-            <Button type="submit" size="lg" className="w-full">
-              Update User
+            <Button type="submit" size="lg" className="w-full" disabled={updateUserMutation.isPending}>
+              {updateUserMutation.isPending ? 'Updating...' : 'Update User'}
             </Button>
           </form>
         </CardContent>

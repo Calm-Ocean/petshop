@@ -13,39 +13,111 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { SquarePen, Trash2, PlusCircle } from 'lucide-react';
-import { mockUsers, deleteUser } from '@/data/mockUsers';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { UserRole } from '@/context/AuthContext';
+
+// Define the User type based on your Supabase profiles table
+interface User {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string; // Assuming email is available from auth.users and can be joined or inferred
+  role: UserRole;
+}
 
 const ManageUsersPage = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = React.useState(mockUsers); // Use local state to trigger re-renders
+  const queryClient = useQueryClient();
 
-  const handleDelete = (userId: string, username: string) => {
-    if (window.confirm(`Are you sure you want to delete user "${username}"?`)) {
-      if (deleteUser(userId)) {
-        setUsers([...mockUsers]); // Update local state to reflect changes
+  const { data: users, isLoading, error } = useQuery<User[]>({
+    queryKey: ['adminUsers'],
+    queryFn: async () => {
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, role');
+
+      if (profilesError) {
+        throw profilesError;
+      }
+
+      // Fetch emails from auth.users for a more complete user list
+      const { data: authUsers, error: authUsersError } = await supabase.auth.admin.listUsers();
+
+      if (authUsersError) {
+        throw authUsersError;
+      }
+
+      const usersWithEmails: User[] = profiles.map(profile => {
+        const authUser = authUsers.users.find(au => au.id === profile.id);
+        return {
+          id: profile.id,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          email: authUser?.email || 'N/A', // Fallback if email not found
+          role: profile.role as UserRole,
+        };
+      });
+      return usersWithEmails;
+    },
+  });
+
+  const handleDelete = async (userId: string, username: string) => {
+    if (window.confirm(`Are you sure you want to delete user "${username}"? This will also delete their Supabase authentication record.`)) {
+      try {
+        // Delete from public.profiles
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', userId);
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        // Delete from auth.users (this will also trigger RLS cascade delete if set up)
+        const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+
+        if (authError) {
+          throw authError;
+        }
+
         toast.success(`User ${username} deleted successfully!`);
-      } else {
-        toast.error(`Failed to delete user ${username}.`);
+        queryClient.invalidateQueries({ queryKey: ['adminUsers'] }); // Invalidate cache to refetch users
+      } catch (error: any) {
+        console.error('Error deleting user:', error);
+        toast.error(`Failed to delete user ${username}: ${error.message}`);
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Loading users...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-destructive">Error loading users: {error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-3xl font-bold">Manage Users</CardTitle>
-          {/* We don't have a direct "add user" page for admins yet, as registration is public */}
-          {/* <Link to="/admin/users/add">
-            <Button>
-              <PlusCircle className="h-4 w-4 mr-2" /> Add New User
-            </Button>
-          </Link> */}
+          {/* Registration is handled via the login page, so no direct 'add user' button here */}
         </CardHeader>
         <CardContent>
-          {users.length === 0 ? (
+          {users && users.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               No users found.
             </div>
@@ -54,20 +126,20 @@ const ManageUsersPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Username</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
+                  {users?.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.username}</TableCell>
-                      <TableCell>{user.name}</TableCell>
+                      <TableCell className="font-medium">{user.email}</TableCell>
+                      <TableCell>{user.first_name} {user.last_name}</TableCell>
                       <TableCell>
                         <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                          {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right flex justify-end space-x-2">
@@ -76,7 +148,7 @@ const ManageUsersPage = () => {
                             <SquarePen className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(user.id, user.username)}>
+                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(user.id, user.email)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
