@@ -1,84 +1,160 @@
-"use client";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import StudentDashboard from "./pages/student/StudentDashboard";
+import ManageCourses from "./pages/admin/ManageCourses";
+import ManageUsers from "./pages/admin/ManageUsers";
+import TeacherCourses from "./pages/teacher/TeacherCourses";
+import StudentCourses from "./pages/student/StudentCourses";
+import TeacherAssignments from "./pages/teacher/TeacherAssignments";
+import StudentGrades from "./pages/student/StudentGrades";
+import TeacherGradebook from "./pages/teacher/TeacherGradebook";
+import StudentAssignments from "./pages/student/StudentAssignments";
+import CourseDetailsPage from "./pages/CourseDetailsPage";
+import StudentCalendar from "./pages/student/StudentCalendar"; // New import
+import TeacherCalendar from "./pages/teacher/TeacherCalendar"; // New import
 
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider, UserRole } from '@/context/AuthContext';
-import { SessionContextProvider } from '@/context/SessionContext';
-import { CartProvider } from '@/context/CartContext';
-import MainLayout from '@/components/MainLayout';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import { Toaster } from '@/components/ui/sonner';
+const queryClient = new QueryClient();
 
-// Pages
-import Index from '@/pages/Index';
-import HomePage from '@/pages/HomePage';
-import ShopPage from '@/pages/ShopPage';
-import ProductDetailsPage from '@/pages/ProductDetailsPage';
-import CartPage from '@/pages/CartPage';
-import CheckoutPage from '@/pages/CheckoutPage';
-import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
-import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
-import AboutPage from '@/pages/AboutPage';
-import UserAccountPage from '@/pages/UserAccountPage';
-import UserOrderHistoryPage from '@/pages/UserOrderHistoryPage';
-import UserAddressPage from '@/pages/UserAddressPage'; // New import
-import AdminDashboardPage from '@/pages/AdminDashboardPage';
-import AddProductPage from '@/pages/admin/AddProductPage';
-import EditProductPage from '@/pages/admin/EditProductPage';
-import ManageProductsPage from '@/pages/admin/ManageProductsPage';
-import ManageOrdersPage from '@/pages/admin/ManageOrdersPage';
-import ManageUsersPage from '@/pages/admin/ManageUsersPage';
-import EditUserPage from '@/pages/admin/EditUserPage';
-import NotFound from '@/pages/NotFound';
-
-const App = () => {
-  return (
-    <BrowserRouter>
-      <SessionContextProvider>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
         <AuthProvider>
-          <CartProvider>
-            <Toaster richColors position="top-right" />
-            <MainLayout>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/shop" element={<ShopPage />} />
-                <Route path="/shop/:productId" element={<ProductDetailsPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                
-                {/* User Protected Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
-                  <Route path="/my-account" element={<UserAccountPage />} />
-                  <Route path="/my-orders" element={<UserOrderHistoryPage />} />
-                  <Route path="/my-account/address" element={<UserAddressPage />} /> {/* New route */}
-                </Route>
-
-                {/* Admin Protected Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                  <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-                  <Route path="/admin/products" element={<ManageProductsPage />} />
-                  <Route path="/admin/products/add" element={<AddProductPage />} />
-                  <Route path="/admin/products/edit/:productId" element={<EditProductPage />} />
-                  <Route path="/admin/orders" element={<ManageOrdersPage />} />
-                  <Route path="/admin/users" element={<ManageUsersPage />} />
-                  <Route path="/admin/users/edit/:userId" element={<EditUserPage />} />
-                </Route>
-
-                {/* Catch-all for 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </MainLayout>
-          </CartProvider>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/courses"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ManageCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ManageUsers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/courses"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/assignments"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherAssignments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/gradebook"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherGradebook />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/calendar" // New route
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherCalendar />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/courses"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/assignments"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentAssignments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/grades"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentGrades />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/calendar" // New route
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentCalendar />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/courses/:courseId"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'teacher', 'student']}>
+                  <CourseDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </AuthProvider>
-      </SessionContextProvider>
-    </BrowserRouter>
-  );
-};
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
