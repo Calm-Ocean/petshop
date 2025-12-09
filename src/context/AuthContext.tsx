@@ -1,131 +1,103 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useSession } from './SessionContext';
-import { toast } from 'sonner';
-import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
+import { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { showError } from '@/utils/toast';
 
-export type UserRole = 'admin' | 'user' | null;
+export type UserRole = 'admin' | 'teacher' | 'student' | null;
 
-export interface UserProfile {
+interface UserProfile {
   id: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  avatar_url?: string;
+  first_name: string | null;
+  last_name: string | null;
   role: UserRole;
-  address?: string; // New field
-  city?: string;    // New field
-  zip_code?: string; // New field
-  country?: string; // New field
+  avatar_url: string | null;
 }
 
 interface AuthContextType {
-  user: UserProfile | null;
+  user: SupabaseUser | null;
+  profile: UserProfile | null;
   role: UserRole;
-  isLoadingAuth: boolean;
+  session: Session | null;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  refetchUserProfile: () => void; // New function to refetch profile
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { user: supabaseUser, isLoading: isLoadingSession } = useSession();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<UserRole>(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const fetchUserProfile = useCallback(async () => {
-    setIsLoadingAuth(true);
-    if (supabaseUser) {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, avatar_url, role, address, city, zip_code, country') // Select new fields
-        .eq('id', supabaseUser.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error);
-        // Display the specific error message from Supabase
-        toast.error(`Failed to load user profile: ${error.message}`);
-        setUserProfile({
-          id: supabaseUser.id,
-          email: supabaseUser.email || 'N/A',
-          role: 'user',
-        });
-        setRole('user');
-      } else if (data) {
-        const profileData: UserProfile = {
-          id: supabaseUser.id,
-          email: supabaseUser.email || 'N/A',
-          first_name: data.first_name || undefined,
-          last_name: data.last_name || undefined,
-          avatar_url: data.avatar_url || undefined,
-          role: data.role as UserRole,
-          address: data.address || undefined,
-          city: data.city || undefined,
-          zip_code: data.zip_code || undefined,
-          country: data.country || undefined,
-        };
-        setUserProfile(profileData);
-        setRole(data.role as UserRole);
-
-        // Redirect if address is incomplete and not already on the address page or login/register
-        const isAddressIncomplete = !profileData.address || !profileData.city || !profileData.zip_code || !profileData.country;
-        const isOnAddressPage = location.pathname === '/my-account/address';
-        const isOnAuthPage = location.pathname === '/login' || location.pathname === '/register';
-
-        if (isAddressIncomplete && !isOnAddressPage && !isOnAuthPage) {
-          toast.info("Please complete your address details to proceed.");
-          navigate('/my-account/address');
-        }
-
-      } else {
-        // If no profile found (PGRST116 error or data is null), it might be a new user. Default to 'user' role.
-        const newProfile: UserProfile = {
-          id: supabaseUser.id,
-          email: supabaseUser.email || 'N/A',
-          role: 'user',
-        };
-        setUserProfile(newProfile);
-        setRole('user');
-
-        // For new users, redirect to address page
-        const isOnAddressPage = location.pathname === '/my-account/address';
-        const isOnAuthPage = location.pathname === '/login' || location.pathname === '/register';
-        if (!isOnAddressPage && !isOnAuthPage) {
-          toast.info("Welcome! Please complete your address details.");
-          navigate('/my-account/address');
-        }
-      }
-    } else {
-      setUserProfile(null);
-      setRole(null);
-    }
-    setIsLoadingAuth(false);
-  }, [supabaseUser, navigate, location.pathname]);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoadingSession) {
-      fetchUserProfile();
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user || null);
+
+        if (currentSession?.user) {
+          // Fetch user profile and role from the 'profiles' table
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name, role, avatar_url')
+            .eq('id', currentSession.user.id)
+            .single();
+
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            setProfile(null);
+            setRole(null);
+          } else if (profileData) {
+            setProfile(profileData);
+            setRole(profileData.role);
+          }
+        } else {
+          setProfile(null);
+          setRole(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      showError(error.message);
+      return { success: false, error: error.message };
     }
-  }, [supabaseUser, isLoadingSession, fetchUserProfile]);
+    return { success: true };
+  };
 
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error('Failed to log out: ' + error.message);
+      showError(error.message);
     } else {
-      // SessionContext will handle the state update and toast message
+      setUser(null);
+      setProfile(null);
+      setRole(null);
     }
   };
 
+  if (loading) {
+    return <div>Loading authentication...</div>; // Or a proper loading spinner
+  }
+
   return (
-    <AuthContext.Provider value={{ user: userProfile, role, isLoadingAuth, logout, refetchUserProfile: fetchUserProfile }}>
+    <AuthContext.Provider value={{ user, profile, role, session, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
