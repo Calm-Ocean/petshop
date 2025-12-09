@@ -1,61 +1,131 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useSession } from './SessionContext';
+import { toast } from 'sonner';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 
-export type UserRole = 'admin' | 'teacher' | 'student' | null;
+export type UserRole = 'admin' | 'user' | null;
 
-interface User {
+export interface UserProfile {
   id: string;
-  username: string;
-  password: string; // In a real app, never store plain passwords
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
   role: UserRole;
-  name: string;
+  address?: string; // New field
+  city?: string;    // New field
+  zip_code?: string; // New field
+  country?: string; // New field
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
   role: UserRole;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
+  isLoadingAuth: boolean;
+  logout: () => Promise<void>;
+  refetchUserProfile: () => void; // New function to refetch profile
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-const mockUsers: User[] = [
-  { id: 'admin1', username: 'admin', password: 'password', role: 'admin', name: 'Admin User' },
-  { id: 'teacher1', username: 'teacher', password: 'password', role: 'teacher', name: 'Teacher Jane' },
-  { id: 'student1', username: 'student', password: 'password', role: 'student', name: 'Student John' },
-];
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user: supabaseUser, isLoading: isLoadingSession } = useSession();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<UserRole>(null);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const fetchUserProfile = useCallback(async () => {
+    setIsLoadingAuth(true);
+    if (supabaseUser) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, avatar_url, role, address, city, zip_code, country') // Select new fields
+        .eq('id', supabaseUser.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user profile:', error);
+        // Display the specific error message from Supabase
+        toast.error(`Failed to load user profile: ${error.message}`);
+        setUserProfile({
+          id: supabaseUser.id,
+          email: supabaseUser.email || 'N/A',
+          role: 'user',
+        });
+        setRole('user');
+      } else if (data) {
+        const profileData: UserProfile = {
+          id: supabaseUser.id,
+          email: supabaseUser.email || 'N/A',
+          first_name: data.first_name || undefined,
+          last_name: data.last_name || undefined,
+          avatar_url: data.avatar_url || undefined,
+          role: data.role as UserRole,
+          address: data.address || undefined,
+          city: data.city || undefined,
+          zip_code: data.zip_code || undefined,
+          country: data.country || undefined,
+        };
+        setUserProfile(profileData);
+        setRole(data.role as UserRole);
+
+        // Redirect if address is incomplete and not already on the address page or login/register
+        const isAddressIncomplete = !profileData.address || !profileData.city || !profileData.zip_code || !profileData.country;
+        const isOnAddressPage = location.pathname === '/my-account/address';
+        const isOnAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+        if (isAddressIncomplete && !isOnAddressPage && !isOnAuthPage) {
+          toast.info("Please complete your address details to proceed.");
+          navigate('/my-account/address');
+        }
+
+      } else {
+        // If no profile found (PGRST116 error or data is null), it might be a new user. Default to 'user' role.
+        const newProfile: UserProfile = {
+          id: supabaseUser.id,
+          email: supabaseUser.email || 'N/A',
+          role: 'user',
+        };
+        setUserProfile(newProfile);
+        setRole('user');
+
+        // For new users, redirect to address page
+        const isOnAddressPage = location.pathname === '/my-account/address';
+        const isOnAuthPage = location.pathname === '/login' || location.pathname === '/register';
+        if (!isOnAddressPage && !isOnAuthPage) {
+          toast.info("Welcome! Please complete your address details.");
+          navigate('/my-account/address');
+        }
+      }
+    } else {
+      setUserProfile(null);
+      setRole(null);
+    }
+    setIsLoadingAuth(false);
+  }, [supabaseUser, navigate, location.pathname]);
 
   useEffect(() => {
-    // In a real app, you'd check for a token in localStorage or a session
-    // For now, we'll keep it simple and assume no persistent login
-  }, []);
-
-  const login = (username: string, password: string): boolean => {
-    const foundUser = mockUsers.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (foundUser) {
-      setUser(foundUser);
-      setRole(foundUser.role);
-      return true;
+    if (!isLoadingSession) {
+      fetchUserProfile();
     }
-    return false;
-  };
+  }, [supabaseUser, isLoadingSession, fetchUserProfile]);
 
-  const logout = () => {
-    setUser(null);
-    setRole(null);
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error('Failed to log out: ' + error.message);
+    } else {
+      // SessionContext will handle the state update and toast message
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, login, logout }}>
+    <AuthContext.Provider value={{ user: userProfile, role, isLoadingAuth, logout, refetchUserProfile: fetchUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

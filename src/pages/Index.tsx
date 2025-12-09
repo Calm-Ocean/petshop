@@ -7,7 +7,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate('/'); // Redirect to the login page
+    navigate('/home'); // Redirect to the e-commerce home page
   }, [navigate]);
 
   return null; // This page won't render anything visible
