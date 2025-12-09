@@ -1,8 +1,9 @@
 "use client";
 
 import React, { ReactNode } from 'react';
-import Navbar from '@/components/Navbar';
-import { MadeWithDyad } from '@/components/made-with-dyad';
+import Navbar from './Navbar';
+import Footer from './Footer'; // New import
+// import { MadeWithDyad } from './made-with-dyad'; // Removed
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -10,12 +11,12 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow container mx-auto p-6">
+      <main className="flex-grow container mx-auto px-4 py-8">
         {children}
       </main>
-      <MadeWithDyad />
+      <Footer /> {/* Added Footer */}
     </div>
   );
 };

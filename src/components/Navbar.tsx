@@ -2,129 +2,108 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
+import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle, ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MenuIcon } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { mockCategories } from '@/data/mockCategories'; // Import mock categories
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();
+  const { cartItemCount } = useCart();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    toast.success("Logged out successfully!");
+    navigate('/login');
   };
-
-  const getNavLinks = () => {
-    if (!user) return [];
-
-    const baseLinks = [
-      { name: 'Dashboard', path: '/dashboard' },
-    ];
-
-    if (role === 'admin') {
-      return [
-        ...baseLinks,
-        { name: 'Manage Users', path: '/admin/users' },
-        { name: 'Manage Courses', path: '/admin/courses' },
-      ];
-    } else if (role === 'teacher') {
-      return [
-        ...baseLinks,
-        { name: 'My Courses', path: '/teacher/courses' },
-        { name: 'Assignments', path: '/teacher/assignments' },
-        { name: 'Gradebook', path: '/teacher/gradebook' },
-        { name: 'Calendar', path: '/teacher/calendar' }, // New link
-      ];
-    } else if (role === 'student') {
-      return [
-        ...baseLinks,
-        { name: 'My Courses', path: '/student/courses' },
-        { name: 'My Assignments', path: '/student/assignments' },
-        { name: 'Grades', path: '/student/grades' },
-        { name: 'Calendar', path: '/student/calendar' }, // New link
-      ];
-    }
-    return baseLinks;
-  };
-
-  const navLinks = getNavLinks();
 
   return (
-    <nav className="bg-primary text-primary-foreground p-4 shadow-md">
+    <nav className="bg-primary text-primary-foreground p-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/dashboard" className="text-2xl font-bold">
-          LMS Portal
+        <Link to="/home" className="text-2xl font-bold flex items-center gap-2">
+          <Package className="h-6 w-6" /> PetShop
         </Link>
+        <div className="flex items-center space-x-4">
+          <Link to="/home">
+            <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+              <Home className="h-4 w-4 mr-2" /> Home
+            </Button>
+          </Link>
 
-        {isMobile ? (
+          {/* Shop with Category Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-primary-foreground">
-                <MenuIcon className="h-6 w-6" />
+              <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+                Shop <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user?.name || 'Guest'}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {navLinks.map((link) => (
-                <DropdownMenuItem key={link.path} asChild>
-                  <Link to={link.path}>{link.name}</Link>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/shop">All Products</Link>
+              </DropdownMenuItem>
+              {mockCategories.map((category) => (
+                <DropdownMenuItem key={category.id} asChild>
+                  <Link to={`/shop?category=${category.name}`}>{category.name}</Link>
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <div className="flex items-center space-x-4">
-            <ul className="flex space-x-4">
-              {navLinks.map((link) => (
-                <li key={link.path}>
-                  <Link to={link.path} className="hover:underline">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            {user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+
+          <Link to="/cart">
+            <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80 relative">
+              <ShoppingCart className="h-4 w-4 mr-2" /> Cart
+              {cartItemCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 rounded-full bg-accent text-accent-foreground">
+                  {cartItemCount}
+                </Badge>
+              )}
+            </Button>
+          </Link>
+
+          {user ? (
+            <>
+              {role === 'admin' && (
+                <Link to="/admin/dashboard">
+                  <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+                    <LayoutDashboard className="h-4 w-4 mr-2" /> Admin
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.username} ({role})
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        )}
+                </Link>
+              )}
+              <Link to="/my-account">
+                <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+                  <UserCircle className="h-4 w-4 mr-2" /> My Account
+                </Button>
+              </Link>
+              <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" /> Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+                  <User className="h-4 w-4 mr-2" /> Login
+                </Button>
+              </Link>
+              {/* Registration is handled via the login page now */}
+              {/* <Link to="/register">
+                <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+                  Register
+                </Button>
+              </Link> */}
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );
