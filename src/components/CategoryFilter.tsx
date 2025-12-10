@@ -36,7 +36,7 @@ const CategoryFilter = () => {
         <Link to="/shop">
           <Button
             variant={!activeCategory ? 'secondary' : 'ghost'}
-            className="w-full justify-start"
+            className="w-full justify-start text-ellipsis overflow-hidden whitespace-nowrap"
           >
             All Products
           </Button>
@@ -45,7 +45,7 @@ const CategoryFilter = () => {
           <Link key={categoryName} to={`/shop?category=${categoryName}`}>
             <Button
               variant={activeCategory === categoryName ? 'secondary' : 'ghost'}
-              className="w-full justify-start"
+              className="w-full justify-start text-ellipsis overflow-hidden whitespace-nowrap"
             >
               {categoryName}
             </Button>
