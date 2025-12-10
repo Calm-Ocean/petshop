@@ -60,7 +60,13 @@ export const getCategories = async (): Promise<string[]> => {
   }
 
   const uniqueCategories = Array.from(new Set(data.map((item) => item.category)));
-  return uniqueCategories;
+  
+  // Process category names: remove "pet supplies" and trim
+  const processedCategories = uniqueCategories.map(category => 
+    category.replace(/pet supplies/gi, '').trim()
+  ).filter(Boolean); // Filter out empty strings if "pet supplies" was the only content
+
+  return processedCategories;
 };
 
 // Add a new product (for admin)
