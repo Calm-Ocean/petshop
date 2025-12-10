@@ -17,12 +17,15 @@ import {
 import { useQuery } from '@tanstack/react-query'; // Import useQuery
 import { getCategories } from '@/lib/supabase/products'; // Import getCategories
 
+const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Define main animal categories
+
 const Navbar = () => {
   const { user, role, logout } = useAuth();
   const { cartItemCount } = useCart();
   const navigate = useNavigate();
 
-  const { data: categories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
+  // We still fetch all categories for potential future use or other parts of the app
+  const { data: allCategories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
   });
@@ -46,7 +49,7 @@ const Navbar = () => {
             </Button>
           </Link>
 
-          {/* Shop with Category Dropdown */}
+          {/* Shop with Animal Category Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
@@ -57,17 +60,12 @@ const Navbar = () => {
               <DropdownMenuItem asChild>
                 <Link to="/shop">All Products</Link>
               </DropdownMenuItem>
-              {isLoadingCategories ? (
-                <DropdownMenuItem disabled>Loading categories...</DropdownMenuItem>
-              ) : categoriesError ? (
-                <DropdownMenuItem disabled>Error loading categories</DropdownMenuItem>
-              ) : (
-                categories?.map((categoryName) => (
-                  <DropdownMenuItem key={categoryName} asChild>
-                    <Link to={`/shop?category=${categoryName}`}>{categoryName}</Link>
-                  </DropdownMenuItem>
-                ))
-              )}
+              {/* Display predefined animal categories */}
+              {ANIMAL_CATEGORIES.map((categoryName) => (
+                <DropdownMenuItem key={categoryName} asChild>
+                  <Link to={`/shop?animalCategory=${categoryName}`}>{categoryName}</Link>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 

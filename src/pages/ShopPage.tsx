@@ -3,27 +3,34 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
-import { useQuery } from '@tanstack/react-query'; // Import useQuery
-import { getProducts, getCategories } from '@/lib/supabase/products'; // Import Supabase product functions
-import CategoryFilter from '@/components/CategoryFilter'; // New import
+import { useQuery } from '@tanstack/react-query';
+import { getProducts, getCategories } from '@/lib/supabase/products';
+import CategoryFilter from '@/components/CategoryFilter';
+import { Separator } from '@/components/ui/separator';
+import { Product } from '@/types/product'; // Import Product type
+
+const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Re-define for ShopPage logic
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
-  const categoryFilter = searchParams.get('category');
+  const categoryFilter = searchParams.get('category'); // Specific category from sidebar
+  const animalCategoryFilter = searchParams.get('animalCategory'); // Broad animal category from navbar
 
   const { data: products, isLoading: isLoadingProducts, error: productsError } = useQuery({
-    queryKey: ['products', categoryFilter],
-    queryFn: () => getProducts(categoryFilter || undefined),
+    queryKey: ['products', categoryFilter, animalCategoryFilter],
+    queryFn: () => getProducts(categoryFilter || animalCategoryFilter || undefined),
   });
 
-  const { data: categories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
+  const { data: allCategories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
   });
 
-  const pageTitle = categoryFilter
-    ? categories?.find(catName => catName === categoryFilter) || 'Products'
-    : 'Our Products';
+  const pageTitle = animalCategoryFilter
+    ? `${animalCategoryFilter} Products`
+    : categoryFilter
+      ? allCategories?.find(catName => catName === categoryFilter) || 'Products'
+      : 'Our Products';
 
   if (isLoadingProducts || isLoadingCategories) {
     return <div className="text-center py-12">Loading products...</div>;
@@ -31,6 +38,17 @@ const ShopPage = () => {
 
   if (productsError || categoriesError) {
     return <div className="text-center py-12 text-destructive">Error loading products: {productsError?.message || categoriesError?.message}</div>;
+  }
+
+  // Group products by their specific category if an animalCategory is selected
+  const groupedProducts: { [key: string]: Product[] } = {};
+  if (animalCategoryFilter && products) {
+    products.forEach(product => {
+      if (!groupedProducts[product.category]) {
+        groupedProducts[product.category] = [];
+      }
+      groupedProducts[product.category].push(product);
+    });
   }
 
   return (
@@ -48,11 +66,29 @@ const ShopPage = () => {
             No products found in this category.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"> {/* Adjusted grid for products */}
-            {products?.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            {animalCategoryFilter ? (
+              // Display grouped products if an animal category is selected
+              Object.keys(groupedProducts).sort().map(categoryName => (
+                <div key={categoryName} className="mb-10">
+                  <h2 className="text-3xl font-semibold mb-6 text-center md:text-left">{categoryName}</h2>
+                  <Separator className="mb-6" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {groupedProducts[categoryName].map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              // Display flat list of products for "All Products" or specific category filter
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {products?.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
