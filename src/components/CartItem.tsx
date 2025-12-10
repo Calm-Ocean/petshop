@@ -22,14 +22,14 @@ const CartItem = ({ item }: CartItemProps) => {
     }
   };
 
-  const price = item.discountPrice !== undefined ? item.discountPrice : item.price;
+  const price = item.discount_price !== undefined ? item.discount_price : item.price; // Corrected to discount_price
   const itemTotal = price * item.quantity;
 
   return (
     <div className="flex items-center justify-between border-b py-4 last:border-b-0">
       <div className="flex items-center space-x-4">
         <Link to={`/shop/${item.id}`}>
-          <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-md" />
+          <img src={item.image_url} alt={item.name} className="w-20 h-20 object-cover rounded-md" /> {/* Corrected to image_url */}
         </Link>
         <div>
           <Link to={`/shop/${item.id}`} className="text-lg font-semibold hover:underline">
