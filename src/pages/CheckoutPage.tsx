@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { addOrder } from '@/data/mockOrders';
-import { useAuth } from '@/context/AuthContext'; // Corrected import path
-import QRPaymentForm from '@/components/QRPaymentForm'; // Import the new component
+import { useAuth } from '@/context/AuthContext';
+import QRPaymentForm from '@/components/QRPaymentForm';
+import { createOrder } from '@/lib/supabase/orders'; // Import the new createOrder function
 
 const CheckoutPage = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -19,13 +19,14 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
 
   const [shippingDetails, setShippingDetails] = useState({
-    fullName: user?.name || '',
-    address: '',
-    city: '',
-    zipCode: '',
-    country: '',
+    fullName: user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : '',
+    address: user?.address || '',
+    city: user?.city || '',
+    zipCode: user?.zip_code || '',
+    country: user?.country || '',
   });
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -46,7 +47,6 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Basic validation for shipping details
     const { fullName, address, city, zipCode, country } = shippingDetails;
     if (!fullName || !address || !city || !zipCode || !country) {
       toast.error("Please fill in all shipping details.");
@@ -56,24 +56,33 @@ const CheckoutPage = () => {
     setShowPaymentForm(true);
   };
 
-  const handlePaymentSuccess = (transactionId: string) => {
-    // Create the new order object
-    const newOrder = {
-      userId: user!.id, // user is guaranteed to exist here due to earlier check
-      customerName: shippingDetails.fullName,
-      shippingAddress: shippingDetails,
-      items: cartItems.map(item => ({
-        ...item,
-        quantity: item.quantity,
-      })),
-      totalAmount: cartTotal,
-      status: 'pending' as const, // Initial status, awaiting manual verification
-      transactionId: transactionId, // Store the submitted transaction ID
-    };
+  const handlePaymentSuccess = async (transactionId: string) => {
+    if (!user) {
+      toast.error("User not authenticated.");
+      navigate('/login');
+      return;
+    }
 
-    addOrder(newOrder);
-    clearCart();
-    navigate('/order-confirmation');
+    setIsPlacingOrder(true);
+    try {
+      await createOrder(
+        user.id,
+        shippingDetails.fullName,
+        shippingDetails,
+        cartItems,
+        cartTotal,
+        transactionId
+      );
+
+      clearCart();
+      toast.success("Order placed successfully! Awaiting payment verification.");
+      navigate('/order-confirmation');
+    } catch (error: any) {
+      console.error('Error placing order:', error);
+      toast.error(`Failed to place order: ${error.message}`);
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -144,7 +153,7 @@ const CheckoutPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {cartItems.map((item) => {
-              const price = item.discountPrice !== undefined ? item.discountPrice : item.price;
+              const price = item.discount_price !== undefined ? item.discount_price : item.price;
               return (
                 <div key={item.id} className="flex justify-between text-sm text-muted-foreground">
                   <span>{item.name} (x{item.quantity})</span>
