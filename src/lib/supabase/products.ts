@@ -17,8 +17,8 @@ export const getProducts = async (category?: string, searchTerm?: string): Promi
   }
 
   if (searchTerm) {
-    // Search in both name and description
-    query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+    // Expand search to include name, description, brand, and category
+    query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,brand.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
   }
 
   const { data, error } = await query.order('name', { ascending: true });
