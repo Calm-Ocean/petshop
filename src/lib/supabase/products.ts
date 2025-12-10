@@ -8,12 +8,17 @@ const formatProductPrices = (product: any): Product => ({
   discount_price: product.discount_price ? product.discount_price / 100 : null,
 });
 
-// Fetch all products, optionally filtered by category
-export const getProducts = async (category?: string): Promise<Product[]> => {
+// Fetch all products, optionally filtered by category or search term
+export const getProducts = async (category?: string, searchTerm?: string): Promise<Product[]> => {
   let query = supabase.from('products').select('*');
 
   if (category) {
     query = query.ilike('category', `%${category}%`);
+  }
+
+  if (searchTerm) {
+    // Search in both name and description
+    query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
   }
 
   const { data, error } = await query.order('name', { ascending: true });

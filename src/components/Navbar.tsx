@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
-import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle, ChevronDown } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle, ChevronDown, Search } from 'lucide-react'; // Import Search icon
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -14,8 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useQuery } from '@tanstack/react-query'; // Import useQuery
-import { getCategories } from '@/lib/supabase/products'; // Import getCategories
+import { useQuery } from '@tanstack/react-query';
+import { getCategories } from '@/lib/supabase/products';
 
 const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Define main animal categories
 
@@ -77,6 +77,13 @@ const Navbar = () => {
                   {cartItemCount}
                 </Badge>
               )}
+            </Button>
+          </Link>
+
+          {/* Search Button */}
+          <Link to="/shop"> {/* Navigate to shop page, SearchBar will appear there */}
+            <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
+              <Search className="h-4 w-4 mr-2" /> Search
             </Button>
           </Link>
 

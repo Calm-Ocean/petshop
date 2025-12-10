@@ -7,7 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getProducts, getCategories } from '@/lib/supabase/products';
 import CategoryFilter from '@/components/CategoryFilter';
 import { Separator } from '@/components/ui/separator';
-import { Product } from '@/types/product'; // Import Product type
+import { Product } from '@/types/product';
+import SearchBar from '@/components/SearchBar'; // New import
 
 const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Re-define for ShopPage logic
 
@@ -15,10 +16,11 @@ const ShopPage = () => {
   const [searchParams] = useSearchParams();
   const categoryFilter = searchParams.get('category'); // Specific category from sidebar
   const animalCategoryFilter = searchParams.get('animalCategory'); // Broad animal category from navbar
+  const searchTerm = searchParams.get('search'); // New: Get search term from URL
 
   const { data: products, isLoading: isLoadingProducts, error: productsError } = useQuery({
-    queryKey: ['products', categoryFilter, animalCategoryFilter],
-    queryFn: () => getProducts(categoryFilter || animalCategoryFilter || undefined),
+    queryKey: ['products', categoryFilter, animalCategoryFilter, searchTerm], // Add searchTerm to queryKey
+    queryFn: () => getProducts(categoryFilter || animalCategoryFilter || undefined, searchTerm || undefined), // Pass searchTerm
   });
 
   const { data: allCategories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
@@ -26,11 +28,14 @@ const ShopPage = () => {
     queryFn: getCategories,
   });
 
-  const pageTitle = animalCategoryFilter
-    ? `${animalCategoryFilter} Products`
-    : categoryFilter
-      ? allCategories?.find(catName => catName === categoryFilter) || 'Products'
-      : 'Our Products';
+  let pageTitle = 'Our Products';
+  if (searchTerm) {
+    pageTitle = `Search Results for "${searchTerm}"`;
+  } else if (animalCategoryFilter) {
+    pageTitle = `${animalCategoryFilter} Products`;
+  } else if (categoryFilter) {
+    pageTitle = allCategories?.find(catName => catName === categoryFilter) || 'Products';
+  }
 
   if (isLoadingProducts || isLoadingCategories) {
     return <div className="text-center py-12">Loading products...</div>;
@@ -61,13 +66,14 @@ const ShopPage = () => {
       {/* Main content area for products */}
       <div className="lg:col-span-3">
         <h1 className="text-4xl font-bold text-center mb-8">{pageTitle}</h1>
+        <SearchBar /> {/* Integrate the SearchBar here */}
         {products && products.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            No products found in this category.
+            No products found matching your criteria.
           </div>
         ) : (
           <>
-            {animalCategoryFilter ? (
+            {animalCategoryFilter && !searchTerm ? ( // Only group if animalCategory is active and no specific search term
               // Display grouped products if an animal category is selected
               Object.keys(groupedProducts).sort().map(categoryName => (
                 <div key={categoryName} className="mb-10">
@@ -81,7 +87,7 @@ const ShopPage = () => {
                 </div>
               ))
             ) : (
-              // Display flat list of products for "All Products" or specific category filter
+              // Display flat list of products for "All Products", specific category filter, or search results
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {products?.map((product) => (
                   <ProductCard key={product.id} product={product} />
