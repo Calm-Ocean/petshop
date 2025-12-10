@@ -14,6 +14,9 @@ const CategoryShowcase = () => {
     queryFn: getCategories,
   });
 
+  // Log the fetched categories to the console for debugging
+  console.log("Categories in CategoryShowcase:", { categories, isLoading, error });
+
   if (isLoading) {
     return <div className="text-center py-12">Loading categories...</div>;
   }

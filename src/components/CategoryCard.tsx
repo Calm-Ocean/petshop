@@ -9,13 +9,14 @@ interface CategoryCardProps {
 }
 
 const CategoryCard = ({ categoryName }: CategoryCardProps) => {
-  const [imageSrc, setImageSrc] = useState(
-    `https://source.unsplash.com/random/400x300/?${categoryName.toLowerCase().replace(/\s/g, '-')}-pet`
-  );
+  // Temporarily force the placeholder image to see if it renders
+  const [imageSrc, setImageSrc] = useState('/placeholder.svg'); 
   const defaultPlaceholder = '/placeholder.svg'; // Path to your generic placeholder
 
   const handleImageError = () => {
-    setImageSrc(defaultPlaceholder);
+    // If the placeholder itself fails (highly unlikely for a local file),
+    // we could log an error, but for now, we're just testing if it shows.
+    console.error(`Failed to load image for category: ${categoryName}. Placeholder also failed.`);
   };
 
   const description = `Explore our selection of ${categoryName.toLowerCase()} products.`;
