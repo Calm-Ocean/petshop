@@ -2,20 +2,34 @@
 
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { mockProducts } from '@/data/mockProducts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, ArrowLeft } from 'lucide-react';
-import { useCart } from '@/context/CartContext'; // New import
-import { Input } from '@/components/ui/input'; // New import
-import { Label } from '@/components/ui/label'; // New import
+import { useCart } from '@/context/CartContext';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useQuery } from '@tanstack/react-query'; // Import useQuery
+import { getProductById } from '@/lib/supabase/products'; // Import getProductById
 
 const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
-  const product = mockProducts.find((p) => p.id === productId);
-  const { addToCart } = useCart(); // Use cart context
-  const [quantity, setQuantity] = React.useState(1); // State for quantity
+  const { addToCart } = useCart();
+  const [quantity, setQuantity] = React.useState(1);
+
+  const { data: product, isLoading, error } = useQuery({
+    queryKey: ['product', productId],
+    queryFn: () => getProductById(productId!),
+    enabled: !!productId, // Only run query if productId is available
+  });
+
+  if (isLoading) {
+    return <div className="text-center py-12">Loading product details...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-12 text-destructive">Error loading product: {error.message}</div>;
+  }
 
   if (!product) {
     return (
@@ -61,7 +75,7 @@ const ProductDetailsPage = () => {
       <Card className="flex flex-col md:flex-row items-center md:items-start p-6 gap-8">
         <div className="md:w-1/2 lg:w-1/3">
           <img
-            src={product.imageUrl}
+            src={product.image_url || 'https://via.placeholder.com/400'} // Use image_url from Supabase
             alt={product.name}
             className="w-full h-auto object-cover rounded-lg shadow-md"
           />
@@ -78,12 +92,12 @@ const ProductDetailsPage = () => {
               {product.description}
             </p>
             <div className="flex items-baseline space-x-4">
-              {product.discountPrice ? (
+              {product.discount_price ? (
                 <>
-                  <span className="text-3xl font-bold text-primary">₹{product.discountPrice.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-primary">₹{product.discount_price.toFixed(2)}</span>
                   <span className="text-lg text-muted-foreground line-through">₹{product.price.toFixed(2)}</span>
                   <Badge variant="destructive">
-                    Save {((1 - product.discountPrice / product.price) * 100).toFixed(0)}%
+                    Save {((1 - product.discount_price / product.price) * 100).toFixed(0)}%
                   </Badge>
                 </>
               ) : (

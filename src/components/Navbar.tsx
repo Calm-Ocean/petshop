@@ -14,12 +14,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { mockCategories } from '@/data/mockCategories'; // Import mock categories
+import { useQuery } from '@tanstack/react-query'; // Import useQuery
+import { getCategories } from '@/lib/supabase/products'; // Import getCategories
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();
   const { cartItemCount } = useCart();
   const navigate = useNavigate();
+
+  const { data: categories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+  });
 
   const handleLogout = () => {
     logout();
@@ -51,11 +57,17 @@ const Navbar = () => {
               <DropdownMenuItem asChild>
                 <Link to="/shop">All Products</Link>
               </DropdownMenuItem>
-              {mockCategories.map((category) => (
-                <DropdownMenuItem key={category.id} asChild>
-                  <Link to={`/shop?category=${category.name}`}>{category.name}</Link>
-                </DropdownMenuItem>
-              ))}
+              {isLoadingCategories ? (
+                <DropdownMenuItem disabled>Loading categories...</DropdownMenuItem>
+              ) : categoriesError ? (
+                <DropdownMenuItem disabled>Error loading categories</DropdownMenuItem>
+              ) : (
+                categories?.map((categoryName) => (
+                  <DropdownMenuItem key={categoryName} asChild>
+                    <Link to={`/shop?category=${categoryName}`}>{categoryName}</Link>
+                  </DropdownMenuItem>
+                ))
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -95,12 +107,6 @@ const Navbar = () => {
                   <User className="h-4 w-4 mr-2" /> Login
                 </Button>
               </Link>
-              {/* Registration is handled via the login page now */}
-              {/* <Link to="/register">
-                <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
-                  Register
-                </Button>
-              </Link> */}
             </>
           )}
         </div>

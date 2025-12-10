@@ -8,57 +8,87 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { mockProducts, updateProduct } from '@/data/mockProducts';
+import { getProductById, updateProduct } from '@/lib/supabase/products'; // Import Supabase product functions
 import { Product } from '@/types/product';
 import { ArrowLeft } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import useQuery, useMutation, useQueryClient
 
 const EditProductPage = () => {
   const navigate = useNavigate();
   const { productId } = useParams<{ productId: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
+  const queryClient = useQueryClient();
+
+  const { data: product, isLoading, error } = useQuery({
+    queryKey: ['product', productId],
+    queryFn: () => getProductById(productId!),
+    enabled: !!productId,
+  });
+
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    const foundProduct = mockProducts.find(p => p.id === productId);
-    if (foundProduct) {
-      setProduct(foundProduct);
-    } else {
-      toast.error("Product not found.");
-      navigate('/admin/products');
+    if (product) {
+      setCurrentProduct(product);
     }
-  }, [productId, navigate]);
+  }, [product]);
+
+  const updateProductMutation = useMutation({
+    mutationFn: updateProduct,
+    onSuccess: (updatedProduct) => {
+      toast.success(`${updatedProduct.name} updated successfully!`);
+      queryClient.invalidateQueries({ queryKey: ['products'] }); // Invalidate products cache
+      queryClient.invalidateQueries({ queryKey: ['product', updatedProduct.id] }); // Invalidate specific product cache
+      queryClient.invalidateQueries({ queryKey: ['categories'] }); // Invalidate categories cache in case category changed
+      navigate('/admin/products');
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to update product: ${error.message}`);
+    },
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    setProduct((prev) => {
+    setCurrentProduct((prev) => {
       if (!prev) return null;
       return {
         ...prev,
-        [id]: id === 'price' || id === 'discountPrice' || id === 'stock' ? parseFloat(value) || 0 : value,
+        [id]: id === 'price' || id === 'discount_price' || id === 'stock' ? parseFloat(value) || 0 : value,
       };
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product) return;
+    if (!currentProduct) return;
 
-    if (!product.name || !product.category || !product.description || product.price <= 0 || product.stock < 0) {
+    if (!currentProduct.name || !currentProduct.category || !currentProduct.description || currentProduct.price <= 0 || currentProduct.stock < 0) {
       toast.error("Please fill in all required fields and ensure price/stock are valid.");
       return;
     }
 
-    if (updateProduct(product)) {
-      toast.success(`${product.name} updated successfully!`);
-      navigate('/admin/products');
-    } else {
-      toast.error(`Failed to update ${product.name}.`);
-    }
+    updateProductMutation.mutate(currentProduct);
   };
 
-  if (!product) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-muted-foreground">Loading product details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-destructive">Error loading product: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (!currentProduct) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Product not found.</p>
       </div>
     );
   }
@@ -67,7 +97,7 @@ const EditProductPage = () => {
     <div className="flex items-center justify-center py-12">
       <Card className="w-full max-w-2xl">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-3xl font-bold">Edit Product: {product.name}</CardTitle>
+          <CardTitle className="text-3xl font-bold">Edit Product: {currentProduct.name}</CardTitle>
           <Button variant="outline" onClick={() => navigate('/admin/products')}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Products
           </Button>
@@ -76,36 +106,36 @@ const EditProductPage = () => {
           <form onSubmit={handleSubmit} className="grid gap-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Product Name</Label>
-              <Input id="name" type="text" required value={product.name} onChange={handleInputChange} />
+              <Input id="name" type="text" required value={currentProduct.name} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>
-              <Input id="category" type="text" required value={product.category} onChange={handleInputChange} />
+              <Input id="category" type="text" required value={currentProduct.category} onChange={handleInputChange} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="price">Price</Label>
-                <Input id="price" type="number" step="0.01" min="0.01" required value={product.price} onChange={handleInputChange} />
+                <Input id="price" type="number" step="0.01" min="0.01" required value={currentProduct.price} onChange={handleInputChange} />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="discountPrice">Discount Price (Optional)</Label>
-                <Input id="discountPrice" type="number" step="0.01" min="0" value={product.discountPrice || ''} onChange={handleInputChange} />
+                <Label htmlFor="discount_price">Discount Price (Optional)</Label>
+                <Input id="discount_price" type="number" step="0.01" min="0" value={currentProduct.discount_price || ''} onChange={handleInputChange} />
               </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="stock">Stock</Label>
-              <Input id="stock" type="number" min="0" required value={product.stock} onChange={handleInputChange} />
+              <Input id="stock" type="number" min="0" required value={currentProduct.stock} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea id="description" required value={product.description} onChange={handleInputChange} />
+              <Textarea id="description" required value={currentProduct.description} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-              <Input id="imageUrl" type="text" value={product.imageUrl} onChange={handleInputChange} placeholder="e.g., /placeholder.svg" />
+              <Label htmlFor="image_url">Image URL (Optional)</Label>
+              <Input id="image_url" type="text" value={currentProduct.image_url || ''} onChange={handleInputChange} placeholder="e.g., /placeholder.svg" />
             </div>
-            <Button type="submit" size="lg" className="w-full">
-              Update Product
+            <Button type="submit" size="lg" className="w-full" disabled={updateProductMutation.isPending}>
+              {updateProductMutation.isPending ? 'Updating Product...' : 'Update Product'}
             </Button>
           </form>
         </CardContent>

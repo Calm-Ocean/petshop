@@ -8,18 +8,33 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { addProduct } from '@/data/mockProducts'; // Import the addProduct function
+import { addProduct } from '@/lib/supabase/products'; // Import the addProduct function from Supabase service
 import { Product } from '@/types/product';
+import { useMutation, useQueryClient } from '@tanstack/react-query'; // Import useMutation and useQueryClient
 
 const AddProductPage = () => {
   const navigate = useNavigate();
-  const [product, setProduct] = useState<Omit<Product, 'id'>>({
+  const queryClient = useQueryClient();
+  const [product, setProduct] = useState<Omit<Product, 'id' | 'created_at'>>({
     name: '',
     category: '',
     price: 0,
     description: '',
-    imageUrl: 'https://images.unsplash.com/photo-1548247092-a9749397356b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default placeholder image
+    image_url: 'https://images.unsplash.com/photo-1548247092-a9749397356b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default placeholder image
     stock: 0,
+  });
+
+  const addProductMutation = useMutation({
+    mutationFn: addProduct,
+    onSuccess: (newProduct) => {
+      toast.success(`${newProduct.name} added successfully!`);
+      queryClient.invalidateQueries({ queryKey: ['products'] }); // Invalidate products cache
+      queryClient.invalidateQueries({ queryKey: ['categories'] }); // Invalidate categories cache
+      navigate('/admin/products'); // Redirect to manage products page
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to add product: ${error.message}`);
+    },
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -37,9 +52,7 @@ const AddProductPage = () => {
       return;
     }
 
-    addProduct(product);
-    toast.success(`${product.name} added successfully!`);
-    navigate('/shop'); // Redirect to shop page to see the new product
+    addProductMutation.mutate(product);
   };
 
   return (
@@ -73,11 +86,11 @@ const AddProductPage = () => {
               <Textarea id="description" required value={product.description} onChange={handleInputChange} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-              <Input id="imageUrl" type="text" value={product.imageUrl} onChange={handleInputChange} placeholder="e.g., https://example.com/image.jpg" />
+              <Label htmlFor="image_url">Image URL (Optional)</Label>
+              <Input id="image_url" type="text" value={product.image_url || ''} onChange={handleInputChange} placeholder="e.g., https://example.com/image.jpg" />
             </div>
-            <Button type="submit" size="lg" className="w-full">
-              Add Product
+            <Button type="submit" size="lg" className="w-full" disabled={addProductMutation.isPending}>
+              {addProductMutation.isPending ? 'Adding Product...' : 'Add Product'}
             </Button>
           </form>
         </CardContent>

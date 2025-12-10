@@ -3,13 +3,13 @@
 import React from 'react';
 import HeroBanner from '@/components/HeroBanner';
 import ProductShowcase from '@/components/ProductShowcase';
-// import CategoryShowcase from '@/components/CategoryShowcase'; // Removed
+import CategoryShowcase from '@/components/CategoryShowcase'; // Re-introduced
 
 const HomePage = () => {
   return (
     <div className="space-y-12">
       <HeroBanner />
-      {/* <CategoryShowcase /> Removed CategoryShowcase */}
+      <CategoryShowcase /> {/* Re-added CategoryShowcase */}
       <ProductShowcase />
       {/* You can add more sections here later, like testimonials, etc. */}
     </div>

@@ -14,23 +14,52 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { SquarePen, Trash2, PlusCircle } from 'lucide-react';
-import { mockProducts, deleteProduct } from '@/data/mockProducts';
 import { toast } from 'sonner';
+import { getProducts, deleteProduct } from '@/lib/supabase/products'; // Import Supabase product functions
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import useQuery, useMutation, useQueryClient
 
 const ManageProductsPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: products, isLoading, error } = useQuery({
+    queryKey: ['products'],
+    queryFn: () => getProducts(),
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: (_, productId) => {
+      toast.success(`Product deleted successfully!`);
+      queryClient.invalidateQueries({ queryKey: ['products'] }); // Invalidate products cache
+      queryClient.invalidateQueries({ queryKey: ['categories'] }); // Invalidate categories cache
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to delete product: ${error.message}`);
+    },
+  });
 
   const handleDelete = (productId: string, productName: string) => {
     if (window.confirm(`Are you sure you want to delete "${productName}"?`)) {
-      if (deleteProduct(productId)) {
-        toast.success(`${productName} deleted successfully!`);
-        // Force re-render by navigating to a dummy route and back, or by updating state
-        navigate(0); // Reloads the current route
-      } else {
-        toast.error(`Failed to delete ${productName}.`);
-      }
+      deleteProductMutation.mutate(productId);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Loading products...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-destructive">Error loading products: {error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
@@ -44,7 +73,7 @@ const ManageProductsPage = () => {
           </Link>
         </CardHeader>
         <CardContent>
-          {mockProducts.length === 0 ? (
+          {products && products.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               No products found. Add some to get started!
             </div>
@@ -61,15 +90,15 @@ const ManageProductsPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockProducts.map((product) => (
+                  {products?.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>{product.category}</TableCell>
                       <TableCell>
-                        {product.discountPrice ? (
+                        {product.discount_price ? (
                           <div className="flex flex-col">
                             <span className="text-sm line-through text-muted-foreground">₹{product.price.toFixed(2)}</span>
-                            <span className="font-semibold">₹{product.discountPrice.toFixed(2)}</span>
+                            <span className="font-semibold">₹{product.discount_price.toFixed(2)}</span>
                           </div>
                         ) : (
                           <span className="font-semibold">₹{product.price.toFixed(2)}</span>
@@ -86,7 +115,13 @@ const ManageProductsPage = () => {
                             <SquarePen className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(product.id, product.name)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => handleDelete(product.id, product.name)}
+                          disabled={deleteProductMutation.isPending}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>

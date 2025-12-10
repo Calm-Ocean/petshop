@@ -2,14 +2,28 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { mockProducts } from '@/data/mockProducts';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query'; // Import useQuery
+import { getProducts } from '@/lib/supabase/products'; // Import getProducts
 
 const ProductShowcase = () => {
+  const { data: products, isLoading, error } = useQuery({
+    queryKey: ['products'],
+    queryFn: () => getProducts(), // Fetch all products
+  });
+
+  if (isLoading) {
+    return <div className="text-center py-12">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-12 text-destructive">Error loading products: {error.message}</div>;
+  }
+
   // Display a limited number of products for the showcase
-  const featuredProducts = mockProducts.slice(0, 4); 
+  const featuredProducts = products?.slice(0, 4) || [];
 
   return (
     <div className="py-12">
