@@ -17,8 +17,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/lib/supabase/products';
 import SearchBar from '@/components/SearchBar'; // Import SearchBar
-
-const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Define main animal categories
+import { ANIMAL_CATEGORIES } from '@/constants/categories'; // Import ANIMAL_CATEGORIES
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();

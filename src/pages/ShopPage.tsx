@@ -8,9 +8,7 @@ import { getProducts, getCategories } from '@/lib/supabase/products';
 import CategoryFilter from '@/components/CategoryFilter';
 import { Separator } from '@/components/ui/separator';
 import { Product } from '@/types/product';
-// import SearchBar from '@/components/SearchBar'; // Removed import
-
-const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Re-define for ShopPage logic
+import { ANIMAL_CATEGORIES } from '@/constants/categories'; // Import ANIMAL_CATEGORIES
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();

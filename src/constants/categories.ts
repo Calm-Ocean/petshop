@@ -1,0 +1,1 @@
+export const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals'];
