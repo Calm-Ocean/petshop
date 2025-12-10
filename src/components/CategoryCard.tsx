@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -9,17 +9,25 @@ interface CategoryCardProps {
 }
 
 const CategoryCard = ({ categoryName }: CategoryCardProps) => {
-  // Using a generic placeholder image and description for categories
-  const imageUrl = `https://source.unsplash.com/random/400x300/?${categoryName.toLowerCase().replace(/\s/g, '-')}-pet`;
+  const [imageSrc, setImageSrc] = useState(
+    `https://source.unsplash.com/random/400x300/?${categoryName.toLowerCase().replace(/\s/g, '-')}-pet`
+  );
+  const defaultPlaceholder = '/placeholder.svg'; // Path to your generic placeholder
+
+  const handleImageError = () => {
+    setImageSrc(defaultPlaceholder);
+  };
+
   const description = `Explore our selection of ${categoryName.toLowerCase()} products.`;
 
   return (
     <Link to={`/shop?category=${categoryName}`} className="block">
       <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
         <img
-          src={imageUrl}
+          src={imageSrc}
           alt={categoryName}
           className="w-full h-48 object-cover"
+          onError={handleImageError}
         />
         <CardHeader className="flex-grow">
           <CardTitle className="text-lg font-semibold line-clamp-1">{categoryName}</CardTitle>
