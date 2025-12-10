@@ -14,9 +14,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { mockOrders, Order } from '@/data/mockOrders';
+import { Order } from '@/types/order'; // Import Order type from new type file
 import { format } from 'date-fns';
 import { ArrowLeft, History } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query'; // Import useQuery
+import { getOrdersByUserId } from '@/lib/supabase/orders'; // Import Supabase order function
 
 const getStatusBadgeVariant = (status: Order['status']) => {
   switch (status) {
@@ -36,7 +38,29 @@ const getStatusBadgeVariant = (status: Order['status']) => {
 };
 
 const UserOrderHistoryPage = () => {
-  const { user } = useAuth();
+  const { user, isLoadingAuth } = useAuth();
+
+  const { data: userOrders, isLoading, error } = useQuery({
+    queryKey: ['userOrders', user?.id],
+    queryFn: () => getOrdersByUserId(user!.id),
+    enabled: !!user && !isLoadingAuth, // Only run query if user is logged in and auth is loaded
+  });
+
+  if (isLoadingAuth || isLoading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Loading order history...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12 text-destructive">
+        <p>Error loading orders: {error.message}</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -51,8 +75,6 @@ const UserOrderHistoryPage = () => {
       </div>
     );
   }
-
-  const userOrders = mockOrders.filter(order => order.userId === user.id);
 
   return (
     <div className="py-8 max-w-5xl mx-auto">
@@ -70,7 +92,7 @@ const UserOrderHistoryPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {userOrders.length === 0 ? (
+          {userOrders && userOrders.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               You haven't placed any orders yet.
               <div className="mt-4">
@@ -92,7 +114,7 @@ const UserOrderHistoryPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {userOrders.map((order) => (
+                  {userOrders?.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
                       <TableCell>{format(new Date(order.orderDate), 'PPP')}</TableCell>

@@ -1,14 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import { CartItem } from '@/context/CartContext'; // Assuming CartItem is defined here
-import { Order } from '@/data/mockOrders'; // Using the Order type for now, will refine later
-
-interface ShippingAddress {
-  fullName: string;
-  address: string;
-  city: string;
-  zipCode: string;
-  country: string;
-}
+import { CartItem } from '@/context/CartContext';
+import { Order, ShippingAddress } from '@/types/order'; // Import Order and ShippingAddress from new type file
 
 // Function to create a new order and its items
 export const createOrder = async (

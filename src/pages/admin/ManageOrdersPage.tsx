@@ -13,10 +13,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { mockOrders, updateOrderStatus, Order } from '@/data/mockOrders';
+import { Order } from '@/types/order'; // Import Order type from new type file
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
+import { getAllOrders, updateOrderStatus as updateSupabaseOrderStatus } from '@/lib/supabase/orders'; // Import Supabase order functions
 
 const getStatusBadgeVariant = (status: Order['status']) => {
   switch (status) {
@@ -36,16 +38,45 @@ const getStatusBadgeVariant = (status: Order['status']) => {
 };
 
 const ManageOrdersPage = () => {
-  const [orders, setOrders] = React.useState(mockOrders);
+  const queryClient = useQueryClient();
+
+  const { data: orders, isLoading, error } = useQuery({
+    queryKey: ['adminOrders'],
+    queryFn: getAllOrders,
+  });
+
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: ({ orderId, newStatus }: { orderId: string; newStatus: Order['status'] }) =>
+      updateSupabaseOrderStatus(orderId, newStatus),
+    onSuccess: (_, variables) => {
+      toast.success(`Order ${variables.orderId} status updated to ${variables.newStatus}.`);
+      queryClient.invalidateQueries({ queryKey: ['adminOrders'] }); // Invalidate cache to refetch orders
+      queryClient.invalidateQueries({ queryKey: ['userOrders'] }); // Invalidate user orders as well
+    },
+    onError: (err: any) => {
+      toast.error(`Failed to update order status: ${err.message}`);
+    },
+  });
 
   const handleStatusChange = (orderId: string, newStatus: Order['status']) => {
-    if (updateOrderStatus(orderId, newStatus)) {
-      setOrders([...mockOrders]); // Force re-render with updated mock data
-      toast.success(`Order ${orderId} status updated to ${newStatus}.`);
-    } else {
-      toast.error(`Failed to update status for order ${orderId}.`);
-    }
+    updateOrderStatusMutation.mutate({ orderId, newStatus });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Loading orders...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-destructive">Error loading orders: {error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
@@ -54,7 +85,7 @@ const ManageOrdersPage = () => {
           <CardTitle className="text-3xl font-bold">Manage Orders</CardTitle>
         </CardHeader>
         <CardContent>
-          {orders.length === 0 ? (
+          {orders && orders.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               No orders found.
             </div>
@@ -72,7 +103,7 @@ const ManageOrdersPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order) => (
+                  {orders?.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
                       <TableCell>{order.customerName}</TableCell>

@@ -2,8 +2,8 @@ export interface Product {
   id: string; // Corresponds to 'asin' from your CSV
   name: string;
   category: string;
-  price: number; // Stored in cents
-  discount_price?: number | null; // Stored in cents, optional
+  price: number; // Stored in readable currency units (e.g., INR)
+  discount_price?: number | null; // Stored in readable currency units, optional
   description: string;
   image_url?: string | null; // Changed to image_url to match Supabase
   stock: number;
