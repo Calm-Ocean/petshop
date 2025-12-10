@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
-import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle, ChevronDown, Search } from 'lucide-react'; // Import Search icon
+import { ShoppingCart, User, LogOut, Home, Package, LayoutDashboard, UserCircle, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/lib/supabase/products';
+import SearchBar from '@/components/SearchBar'; // Import SearchBar
 
 const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Define main animal categories
 
@@ -38,11 +39,17 @@ const Navbar = () => {
 
   return (
     <nav className="bg-primary text-primary-foreground p-4 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex flex-wrap justify-between items-center gap-y-4">
         <Link to="/home" className="text-2xl font-bold flex items-center gap-2">
           <Package className="h-6 w-6" /> PetShop
         </Link>
-        <div className="flex items-center space-x-4">
+        
+        {/* Search Bar in Navbar */}
+        <div className="flex-grow max-w-md mx-4">
+          <SearchBar />
+        </div>
+
+        <div className="flex items-center space-x-4 ml-auto"> {/* Pushed to the right */}
           <Link to="/home">
             <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
               <Home className="h-4 w-4 mr-2" /> Home
@@ -77,13 +84,6 @@ const Navbar = () => {
                   {cartItemCount}
                 </Badge>
               )}
-            </Button>
-          </Link>
-
-          {/* Search Button */}
-          <Link to="/shop"> {/* Navigate to shop page, SearchBar will appear there */}
-            <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
-              <Search className="h-4 w-4 mr-2" /> Search
             </Button>
           </Link>
 

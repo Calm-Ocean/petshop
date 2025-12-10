@@ -8,7 +8,7 @@ import { getProducts, getCategories } from '@/lib/supabase/products';
 import CategoryFilter from '@/components/CategoryFilter';
 import { Separator } from '@/components/ui/separator';
 import { Product } from '@/types/product';
-import SearchBar from '@/components/SearchBar'; // New import
+// import SearchBar from '@/components/SearchBar'; // Removed import
 
 const ANIMAL_CATEGORIES = ['Dogs', 'Cats', 'Birds', 'Fish', 'Small Animals']; // Re-define for ShopPage logic
 
@@ -66,7 +66,7 @@ const ShopPage = () => {
       {/* Main content area for products */}
       <div className="lg:col-span-3">
         <h1 className="text-4xl font-bold text-center mb-8">{pageTitle}</h1>
-        <SearchBar /> {/* Integrate the SearchBar here */}
+        {/* <SearchBar /> Removed SearchBar from here */}
         {products && products.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             No products found matching your criteria.
