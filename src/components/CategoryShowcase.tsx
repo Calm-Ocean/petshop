@@ -5,28 +5,18 @@ import { Link } from 'react-router-dom';
 import CategoryCard from '@/components/CategoryCard';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query'; // Import useQuery
-import { getCategories } from '@/lib/supabase/products'; // Import getCategories
+import { useQuery } from '@tanstack/react-query';
+import { getCategories } from '@/lib/supabase/products';
+import { CATEGORY_IMAGES, ANIMAL_CATEGORIES } from '@/constants/categories'; // Import CATEGORY_IMAGES and ANIMAL_CATEGORIES
 
 const CategoryShowcase = () => {
-  const { data: categories, isLoading, error } = useQuery({
-    queryKey: ['categories'],
-    queryFn: getCategories,
-  });
+  // We'll use ANIMAL_CATEGORIES directly for the showcase, as they are the main categories.
+  // The getCategories query is still useful for other parts of the app if needed,
+  // but for the showcase, we want specific, predefined categories.
 
-  // Log the fetched categories to the console for debugging
-  console.log("Categories in CategoryShowcase:", { categories, isLoading, error });
-
-  if (isLoading) {
-    return <div className="text-center py-12">Loading categories...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-12 text-destructive">Error loading categories: {error.message}</div>;
-  }
-
-  // Display a limited number of categories for the showcase, e.g., first 4
-  const featuredCategories = categories?.slice(0, 4) || [];
+  // For the showcase, we'll iterate over ANIMAL_CATEGORIES directly.
+  // No need for a separate query for this specific component's display.
+  const featuredCategories = ANIMAL_CATEGORIES.slice(0, 4); // Display first 4 animal categories
 
   return (
     <div className="py-12">
@@ -40,7 +30,11 @@ const CategoryShowcase = () => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {featuredCategories.map((categoryName) => (
-          <CategoryCard key={categoryName} categoryName={categoryName} />
+          <CategoryCard
+            key={categoryName}
+            categoryName={categoryName}
+            imageUrl={CATEGORY_IMAGES[categoryName] || '/placeholder.svg'} // Pass image URL
+          />
         ))}
       </div>
     </div>
