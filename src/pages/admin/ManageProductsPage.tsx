@@ -95,7 +95,8 @@ const ManageProductsPage = () => {
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>{product.category}</TableCell>
                       <TableCell>
-                        {product.discount_price != null ? ( {/* Fixed: Check for null or undefined */}
+                        {/* Fixed: Check for null or undefined */}
+                        {product.discount_price != null ? (
                           <div className="flex flex-col">
                             <span className="text-sm line-through text-muted-foreground">₹{product.price.toFixed(2)}</span>
                             <span className="font-semibold">₹{product.discount_price.toFixed(2)}</span>
