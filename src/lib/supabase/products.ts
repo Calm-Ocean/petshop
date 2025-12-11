@@ -10,6 +10,7 @@ const formatProductPrices = (product: any): Product => ({
 
 // Fetch all products, optionally filtered by category or search term
 export const getProducts = async (category?: string, searchTerm?: string): Promise<Product[]> => {
+  console.log('Fetching products with category:', category, 'and searchTerm:', searchTerm);
   let query = supabase.from('products').select('*');
 
   if (category) {
@@ -28,7 +29,10 @@ export const getProducts = async (category?: string, searchTerm?: string): Promi
     throw error;
   }
 
-  return data.map(formatProductPrices);
+  console.log('Raw data from Supabase:', data);
+  const formattedData = data.map(formatProductPrices);
+  console.log('Formatted products data:', formattedData);
+  return formattedData;
 };
 
 // Fetch a single product by ID
