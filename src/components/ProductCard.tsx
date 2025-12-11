@@ -39,7 +39,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </Badge>
       </CardHeader>
       <CardContent className="flex items-baseline justify-between">
-        {product.discount_price != null ? ( {/* Fixed: Check for null or undefined */}
+        {/* Fixed: Check for null or undefined */}
+        {product.discount_price != null ? (
           <div className="flex items-baseline space-x-2">
             <span className="text-xl font-bold text-primary">₹{product.discount_price.toFixed(2)}</span>
             <span className="text-sm text-muted-foreground line-through">₹{product.price.toFixed(2)}</span>
