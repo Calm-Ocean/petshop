@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CartItem } from '@/context/CartContext';
-import { Order, ShippingAddress } from '@/types/order'; // Import Order and ShippingAddress from new type file
+import { Order, ShippingAddress } from '@/types/order';
 
 // Function to create a new order and its items
 export const createOrder = async (
@@ -33,7 +33,7 @@ export const createOrder = async (
     order_id: orderData.id,
     product_id: item.id,
     product_name: item.name,
-    product_price: item.discount_price !== undefined ? item.discount_price : item.price,
+    product_price: item.discount_price ?? item.price, // Fixed: Use nullish coalescing
     quantity: item.quantity,
     image_url: item.image_url,
   }));

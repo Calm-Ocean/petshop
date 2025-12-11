@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import QRPaymentForm from '@/components/QRPaymentForm';
-import { createOrder } from '@/lib/supabase/orders'; // Import the new createOrder function
+import { createOrder } from '@/lib/supabase/orders';
 
 const CheckoutPage = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -153,7 +153,7 @@ const CheckoutPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {cartItems.map((item) => {
-              const price = item.discount_price !== undefined ? item.discount_price : item.price;
+              const price = item.discount_price ?? item.price; // Fixed: Use nullish coalescing
               return (
                 <div key={item.id} className="flex justify-between text-sm text-muted-foreground">
                   <span>{item.name} (x{item.quantity})</span>

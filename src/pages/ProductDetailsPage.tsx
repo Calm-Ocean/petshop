@@ -9,8 +9,8 @@ import { ShoppingCart, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useQuery } from '@tanstack/react-query'; // Import useQuery
-import { getProductById } from '@/lib/supabase/products'; // Import getProductById
+import { useQuery } from '@tanstack/react-query';
+import { getProductById } from '@/lib/supabase/products';
 
 const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -20,7 +20,7 @@ const ProductDetailsPage = () => {
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', productId],
     queryFn: () => getProductById(productId!),
-    enabled: !!productId, // Only run query if productId is available
+    enabled: !!productId,
   });
 
   if (isLoading) {
@@ -28,7 +28,9 @@ const ProductDetailsPage = () => {
   }
 
   if (error) {
-    return <div className="text-center py-12 text-destructive">Error loading product: {error.message}</div>;
+    return (
+      <div className="text-center py-12 text-destructive">Error loading product: {error.message}</div>
+    );
   }
 
   if (!product) {
@@ -75,7 +77,7 @@ const ProductDetailsPage = () => {
       <Card className="flex flex-col md:flex-row items-center md:items-start p-6 gap-8">
         <div className="md:w-1/2 lg:w-1/3">
           <img
-            src={product.image_url || 'https://via.placeholder.com/400'} // Use image_url from Supabase
+            src={product.image_url || 'https://via.placeholder.com/400'}
             alt={product.name}
             className="w-full h-auto object-cover rounded-lg shadow-md"
           />
@@ -92,7 +94,7 @@ const ProductDetailsPage = () => {
               {product.description}
             </p>
             <div className="flex items-baseline space-x-4">
-              {product.discount_price ? (
+              {product.discount_price != null ? ( {/* Fixed: Check for null or undefined */}
                 <>
                   <span className="text-3xl font-bold text-primary">₹{product.discount_price.toFixed(2)}</span>
                   <span className="text-lg text-muted-foreground line-through">₹{product.price.toFixed(2)}</span>

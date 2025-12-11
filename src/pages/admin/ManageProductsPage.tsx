@@ -15,8 +15,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { SquarePen, Trash2, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { getProducts, deleteProduct } from '@/lib/supabase/products'; // Import Supabase product functions
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import useQuery, useMutation, useQueryClient
+import { getProducts, deleteProduct } from '@/lib/supabase/products';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const ManageProductsPage = () => {
   const navigate = useNavigate();
@@ -31,8 +31,8 @@ const ManageProductsPage = () => {
     mutationFn: deleteProduct,
     onSuccess: (_, productId) => {
       toast.success(`Product deleted successfully!`);
-      queryClient.invalidateQueries({ queryKey: ['products'] }); // Invalidate products cache
-      queryClient.invalidateQueries({ queryKey: ['categories'] }); // Invalidate categories cache
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error: any) => {
       toast.error(`Failed to delete product: ${error.message}`);
@@ -95,7 +95,7 @@ const ManageProductsPage = () => {
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>{product.category}</TableCell>
                       <TableCell>
-                        {product.discount_price ? (
+                        {product.discount_price != null ? ( {/* Fixed: Check for null or undefined */}
                           <div className="flex flex-col">
                             <span className="text-sm line-through text-muted-foreground">₹{product.price.toFixed(2)}</span>
                             <span className="font-semibold">₹{product.discount_price.toFixed(2)}</span>
