@@ -62,29 +62,11 @@ const getAnimalCategory = (fullCategory: string): string => {
   if (parts.includes('Dogs')) return 'Dogs';
   if (parts.includes('Birds')) return 'Birds';
   if (parts.includes('Small Animals')) return 'Small Animals';
-  if (parts.includes('Fish')) return 'Fish'; // Assuming 'Fish' might appear directly
+  if (parts.includes('Fish')) return 'Fish';
   return 'Other';
 };
 
-const parseStock = (availabilityString: string): number => {
-  if (!availabilityString) return 50; // Default stock
-  availabilityString = availabilityString.toLowerCase();
-
-  if (availabilityString.includes('in stock')) {
-    const match = availabilityString.match(/only (\d+) left in stock/);
-    if (match && match[1]) {
-      return parseInt(match[1], 10);
-    }
-    return 100; // High stock for general "in stock"
-  }
-  if (availabilityString.includes('currently unavailable')) {
-    return 0;
-  }
-  if (availabilityString.includes('dispatched in')) {
-    return 50; // Assume reasonable stock for items that dispatch
-  }
-  return 50; // Default if no specific pattern matched
-};
+// Removed parseStock function as we are now hardcoding stock to 100
 
 const seedProducts = async () => {
   try {
@@ -115,7 +97,7 @@ const seedProducts = async () => {
       const price = parseFloat(row.price) || 0;
       const description = row.description || row.about_item || row.name;
       const category = getAnimalCategory(row.category);
-      const stock = parseStock(row.availability);
+      const stock = 100; // Hardcode stock to 100 for all products
 
       return {
         id: productId,
@@ -130,9 +112,9 @@ const seedProducts = async () => {
         asin: row.asin || null,
         currency: row.currency || 'INR',
         brand: row.brand || null,
-        overview: row.overview ? JSON.parse(row.overview.replace(/\\'/g, "'")) : null, // Handle single quotes and empty
+        overview: row.overview ? JSON.parse(row.overview.replace(/\\'/g, "'")) : null,
         about_item: row.about_item || null,
-        specifications: row.specifications ? JSON.parse(row.specifications.replace(/\\'/g, "'")) : null, // Handle single quotes and empty
+        specifications: row.specifications ? JSON.parse(row.specifications.replace(/\\'/g, "'")) : null,
         uniq_id: row.uniq_id || null,
         scraped_at: row.scraped_at || null,
       };
