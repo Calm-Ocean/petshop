@@ -6,14 +6,14 @@ export interface Product {
   discount_price?: number | null; // Stored in readable currency units, optional
   description: string;
   image_url?: string | null; // Changed to image_url to match Supabase
-  stock: number;
+  stock: number; // New field for product stock
   url?: string | null;
   asin?: string | null; // Keeping asin as a separate field if needed, though it's the ID
   currency?: string | null;
   brand?: string | null;
   overview?: any | null; // JSONB type
   about_item?: string | null;
-  availability?: string | null;
+  // availability?: string | null; // Removed as it's replaced by 'stock'
   specifications?: any | null; // JSONB type
   uniq_id?: string | null;
   scraped_at?: string | null;

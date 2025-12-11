@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
 
-// Helper to convert price from cents to a readable format
+// Helper to convert price from cents to a readable format (already exists)
 const formatProductPrices = (product: any): Product => ({
   ...product,
   price: product.price / 100,
