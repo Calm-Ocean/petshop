@@ -24,16 +24,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     // Initialize cart from localStorage if available
     if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('cartItems');
-      return savedCart ? JSON.parse(savedCart) : [];
+      try {
+        const savedCart = localStorage.getItem('cartItems');
+        console.log('CartContext: Initializing from localStorage. Saved cart:', savedCart);
+        return savedCart ? JSON.parse(savedCart) : [];
+      } catch (e) {
+        console.error('CartContext: Error parsing localStorage cart during initialization:', e);
+        return [];
+      }
     }
+    console.log('CartContext: Initializing with empty cart (window undefined).');
     return [];
   });
 
   useEffect(() => {
     // Save cart to localStorage whenever it changes
     if (typeof window !== 'undefined') {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      try {
+        console.log('CartContext: Saving cart to localStorage. Current cart:', cartItems);
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      } catch (e) {
+        console.error('CartContext: Error saving cart to localStorage:', e);
+      }
     }
   }, [cartItems]);
 
@@ -104,7 +116,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const cartTotal = cartItems.reduce((total, item) => {
-    const price = item.discountPrice !== undefined ? item.discountPrice : item.price;
+    const price = item.discount_price !== undefined ? item.discount_price : item.price;
     return total + price * item.quantity;
   }, 0);
 
