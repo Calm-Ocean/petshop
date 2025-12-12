@@ -91,7 +91,7 @@ const ProductDetailsPage = () => {
           </CardHeader>
           <CardContent className="p-0 space-y-4">
             <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
-              {product.description}
+              {product.description || "No detailed description available for this product."}
             </p>
             <div className="flex items-baseline space-x-4">
               {product.discount_price != null ? (

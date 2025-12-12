@@ -32,7 +32,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <CardHeader className="flex-grow">
         <CardTitle className="text-lg font-semibold line-clamp-2">{product.name}</CardTitle>
         <CardDescription className="text-sm text-muted-foreground line-clamp-2">
-          {product.description}
+          {product.description || "No description available."}
         </CardDescription>
         <Badge variant="secondary" className="mt-2 self-start">
           {product.category}

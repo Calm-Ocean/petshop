@@ -2,12 +2,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
 
 // Helper to convert price from database's 'cents' to a readable format (x50 and rounded)
-const formatProductPrices = (product: any): Product => ({
-  ...product,
-  // Convert from cents (DB) to base unit (DB_price / 100), then multiply by 50 and round
-  price: Math.round((product.price / 100) * 50),
-  discount_price: product.discount_price ? Math.round((product.discount_price / 100) * 50) : null,
-});
+const formatProductPrices = (product: any): Product => {
+  const formattedProduct = {
+    ...product,
+    // Convert from cents (DB) to base unit (DB_price / 100), then multiply by 50 and round
+    price: Math.round((product.price / 100) * 50),
+    discount_price: product.discount_price ? Math.round((product.discount_price / 100) * 50) : null,
+  };
+  console.log(`Supabase Products Service: Formatted product ${formattedProduct.name} (ID: ${formattedProduct.id}): Description: "${formattedProduct.description}"`);
+  return formattedProduct;
+};
 
 // Fetch all products, optionally filtered by category or search term
 export const getProducts = async (category?: string, searchTerm?: string): Promise<Product[]> => {

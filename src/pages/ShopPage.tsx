@@ -17,10 +17,15 @@ const ShopPage = () => {
   const searchTerm = searchParams.get('search'); // New: Get search term from URL
 
   console.log('ShopPage: Current search term from URL:', searchTerm);
+  console.log('ShopPage: Category filter from URL:', categoryFilter);
+  console.log('ShopPage: Animal Category filter from URL:', animalCategoryFilter);
 
   const { data: products, isLoading: isLoadingProducts, error: productsError } = useQuery({
     queryKey: ['products', categoryFilter, animalCategoryFilter, searchTerm], // Add searchTerm to queryKey
-    queryFn: () => getProducts(categoryFilter || animalCategoryFilter || undefined, searchTerm || undefined), // Pass searchTerm
+    queryFn: () => {
+      console.log('ShopPage: Calling getProducts with category:', categoryFilter || animalCategoryFilter || 'none', 'and searchTerm:', searchTerm || 'none');
+      return getProducts(categoryFilter || animalCategoryFilter || undefined, searchTerm || undefined);
+    },
   });
 
   const { data: allCategories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
@@ -42,7 +47,11 @@ const ShopPage = () => {
   }
 
   if (productsError || categoriesError) {
-    return <div className="text-center py-12 text-destructive">Error loading products: {productsError?.message || categoriesError?.message}</div>;
+    return (
+      <div className="text-center py-12 text-destructive">
+        Error loading products: {productsError?.message || categoriesError?.message}
+      </div>
+    );
   }
 
   // Group products by their specific category if an animalCategory is selected
