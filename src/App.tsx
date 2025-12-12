@@ -33,6 +33,7 @@ import EditUserPage from '@/pages/admin/EditUserPage';
 import NotFound from '@/pages/NotFound';
 
 const App = () => {
+  console.log("App component is rendering.");
   return (
     <BrowserRouter>
       <SessionContextProvider>
