@@ -13,7 +13,7 @@ import { Toaster } from '@/components/ui/sonner';
 import Index from '@/pages/Index';
 import HomePage from '@/pages/HomePage';
 import ShopPage from '@/pages/ShopPage';
-import ProductDetailsPage from '@/pages/ProductDetailsPage'; // This page will now render outside MainLayout
+import ProductDetailsPage from '@/pages/ProductDetailsPage';
 import CartPage from '@/pages/CartPage';
 import CheckoutPage from '@/pages/CheckoutPage';
 import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
@@ -22,7 +22,7 @@ import RegisterPage from '@/pages/RegisterPage';
 import AboutPage from '@/pages/AboutPage';
 import UserAccountPage from '@/pages/UserAccountPage';
 import UserOrderHistoryPage from '@/pages/UserOrderHistoryPage';
-import UserAddressPage from '@/pages/UserAddressPage';
+import UserAddressPage from '@/pages/UserAddressPage'; // New import
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AddProductPage from '@/pages/admin/AddProductPage';
 import EditProductPage from '@/pages/admin/EditProductPage';
@@ -33,22 +33,18 @@ import EditUserPage from '@/pages/admin/EditUserPage';
 import NotFound from '@/pages/NotFound';
 
 const App = () => {
-  console.log("App component is rendering.");
   return (
     <BrowserRouter>
       <SessionContextProvider>
         <AuthProvider>
           <CartProvider>
             <Toaster richColors position="top-right" />
-            <Routes>
-              {/* Route for ProductDetailsPage - outside MainLayout */}
-              <Route path="/shop/:productId" element={<ProductDetailsPage />} />
-
-              {/* Routes wrapped by MainLayout */}
-              <Route element={<MainLayout />}>
+            <MainLayout>
+              <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/shop" element={<ShopPage />} />
+                <Route path="/shop/:productId" element={<ProductDetailsPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
@@ -60,7 +56,7 @@ const App = () => {
                 <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
                   <Route path="/my-account" element={<UserAccountPage />} />
                   <Route path="/my-orders" element={<UserOrderHistoryPage />} />
-                  <Route path="/my-account/address" element={<UserAddressPage />} />
+                  <Route path="/my-account/address" element={<UserAddressPage />} /> {/* New route */}
                 </Route>
 
                 {/* Admin Protected Routes */}
@@ -76,8 +72,8 @@ const App = () => {
 
                 {/* Catch-all for 404 */}
                 <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
+              </Routes>
+            </MainLayout>
           </CartProvider>
         </AuthProvider>
       </SessionContextProvider>
