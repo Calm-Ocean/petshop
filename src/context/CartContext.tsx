@@ -50,6 +50,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [cartItems]);
 
   const addToCart = (product: Product, quantityToAdd: number = 1) => {
+    console.log('CartContext: Attempting to add product to cart:', product);
     setCartItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex((item) => item.id === product.id);
 
@@ -68,6 +69,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           quantity: newQuantity,
         };
         toast.success(`${quantityToAdd}x ${product.name} added to cart.`);
+        console.log('CartContext: Updated existing item in cart:', updatedItems[existingItemIndex]);
         return updatedItems;
       } else {
         if (quantityToAdd > product.stock) {
@@ -75,7 +77,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           return prevItems;
         }
         toast.success(`${quantityToAdd}x ${product.name} added to cart.`);
-        return [...prevItems, { ...product, quantity: quantityToAdd }];
+        const newItem = { ...product, quantity: quantityToAdd };
+        console.log('CartContext: Added new item to cart:', newItem);
+        return [...prevItems, newItem];
       }
     });
   };
@@ -116,9 +120,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const cartTotal = cartItems.reduce((total, item) => {
-    const price = item.discount_price !== undefined ? item.discount_price : item.price;
+    const price = item.discount_price !== undefined && item.discount_price !== null ? item.discount_price : item.price;
+    console.log(`CartContext: Calculating total for item ${item.name}: price=${price}, quantity=${item.quantity}, subtotal=${price * item.quantity}`);
     return total + price * item.quantity;
   }, 0);
+  console.log('CartContext: Current cart total:', cartTotal);
+
 
   const cartItemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
