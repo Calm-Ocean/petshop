@@ -36,7 +36,7 @@ const CartItem = ({ item }: CartItemProps) => {
             {item.name}
           </Link>
           <p className="text-muted-foreground text-sm">{item.category}</p>
-          <p className="text-primary font-medium">₹{price.toFixed(2)} each</p>
+          <p className="text-primary font-medium">₹{price.toFixed(0)} each</p>
         </div>
       </div>
       <div className="flex items-center space-x-4">
@@ -48,7 +48,7 @@ const CartItem = ({ item }: CartItemProps) => {
           onChange={handleQuantityChange}
           className="w-20 text-center"
         />
-        <p className="text-lg font-semibold">₹{itemTotal.toFixed(2)}</p>
+        <p className="text-lg font-semibold">₹{itemTotal.toFixed(0)}</p>
         <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
           <Trash2 className="h-5 w-5 text-red-500" />
         </Button>

@@ -18,7 +18,7 @@ const AddProductPage = () => {
   const [product, setProduct] = useState<Omit<Product, 'id' | 'created_at'>>({
     name: '',
     category: '',
-    price: 0,
+    price: 0, // Initial price is 0
     description: '',
     image_url: 'https://images.unsplash.com/photo-1548247092-a9749397356b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default placeholder image
     stock: 0,
@@ -41,7 +41,7 @@ const AddProductPage = () => {
     const { id, value } = e.target;
     setProduct((prev) => ({
       ...prev,
-      [id]: id === 'price' || id === 'stock' ? parseFloat(value) || 0 : value,
+      [id]: id === 'price' || id === 'stock' ? parseInt(value, 10) || 0 : value, // Parse price/stock as integers
     }));
   };
 
@@ -73,8 +73,8 @@ const AddProductPage = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="price">Price</Label>
-                <Input id="price" type="number" step="0.01" min="0.01" required value={product.price} onChange={handleInputChange} />
+                <Label htmlFor="price">Price (x50, no decimals)</Label>
+                <Input id="price" type="number" step="1" min="1" required value={product.price} onChange={handleInputChange} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="stock">Stock</Label>

@@ -1,11 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
 
-// Helper to convert price from cents to a readable format (already exists)
+// Helper to convert price from database's 'cents' to a readable format (x50 and rounded)
 const formatProductPrices = (product: any): Product => ({
   ...product,
-  price: product.price / 100,
-  discount_price: product.discount_price ? product.discount_price / 100 : null,
+  // Convert from cents (DB) to base unit (DB_price / 100), then multiply by 50 and round
+  price: Math.round((product.price / 100) * 50),
+  discount_price: product.discount_price ? Math.round((product.discount_price / 100) * 50) : null,
 });
 
 // Fetch all products, optionally filtered by category or search term
@@ -79,8 +80,10 @@ export const addProduct = async (product: Omit<Product, 'id' | 'created_at'>): P
     .from('products')
     .insert({
       ...product,
-      price: product.price * 100, // Convert to cents for storage
-      discount_price: product.discount_price ? product.discount_price * 100 : null,
+      // Convert from displayed value (x50, rounded) back to database's 'cents' equivalent
+      // displayed_price -> (displayed_price / 50) -> (actual_price * 100)
+      price: (product.price / 50) * 100, 
+      discount_price: product.discount_price ? (product.discount_price / 50) * 100 : null,
     })
     .select()
     .single();
@@ -99,8 +102,9 @@ export const updateProduct = async (product: Product): Promise<Product> => {
     .from('products')
     .update({
       ...product,
-      price: product.price * 100, // Convert to cents for storage
-      discount_price: product.discount_price ? product.discount_price * 100 : null,
+      // Convert from displayed value (x50, rounded) back to database's 'cents' equivalent
+      price: (product.price / 50) * 100,
+      discount_price: product.discount_price ? (product.discount_price / 50) * 100 : null,
     })
     .eq('id', product.id)
     .select()
