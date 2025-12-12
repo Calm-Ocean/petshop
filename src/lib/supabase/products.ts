@@ -11,7 +11,7 @@ const formatProductPrices = (product: any): Product => ({
 
 // Fetch all products, optionally filtered by category or search term
 export const getProducts = async (category?: string, searchTerm?: string): Promise<Product[]> => {
-  console.log('Fetching products with category:', category, 'and searchTerm:', searchTerm);
+  console.log('Supabase Products Service: Fetching products with category:', category, 'and searchTerm:', searchTerm);
   let query = supabase.from('products').select('*');
 
   if (category) {
@@ -19,20 +19,27 @@ export const getProducts = async (category?: string, searchTerm?: string): Promi
   }
 
   if (searchTerm) {
-    // Expand search to include name, description, brand, and category
-    query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,brand.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+    const searchConditions = [
+      `name.ilike.%${searchTerm}%`,
+      `description.ilike.%${searchTerm}%`,
+      `brand.ilike.%${searchTerm}%`,
+      `category.ilike.%${searchTerm}%`,
+    ];
+    const orConditionString = searchConditions.join(',');
+    console.log('Supabase Products Service: Applying OR condition:', orConditionString);
+    query = query.or(orConditionString);
   }
 
   const { data, error } = await query.order('name', { ascending: true });
 
   if (error) {
-    console.error('Error fetching products:', error);
+    console.error('Supabase Products Service: Error fetching products:', error);
     throw error;
   }
 
-  console.log('Raw data from Supabase:', data);
+  console.log('Supabase Products Service: Raw data from Supabase:', data);
   const formattedData = data.map(formatProductPrices);
-  console.log('Formatted products data:', formattedData);
+  console.log('Supabase Products Service: Formatted products data:', formattedData);
   return formattedData;
 };
 

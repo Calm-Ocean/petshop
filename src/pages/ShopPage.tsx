@@ -16,6 +16,8 @@ const ShopPage = () => {
   const animalCategoryFilter = searchParams.get('animalCategory'); // Broad animal category from navbar
   const searchTerm = searchParams.get('search'); // New: Get search term from URL
 
+  console.log('ShopPage: Current search term from URL:', searchTerm);
+
   const { data: products, isLoading: isLoadingProducts, error: productsError } = useQuery({
     queryKey: ['products', categoryFilter, animalCategoryFilter, searchTerm], // Add searchTerm to queryKey
     queryFn: () => getProducts(categoryFilter || animalCategoryFilter || undefined, searchTerm || undefined), // Pass searchTerm
