@@ -1,5 +1,5 @@
 export interface Product {
-  id: string; // Corresponds to 'asin' from your CSV
+  id: string; // Unique identifier for the product (UUID)
   name: string;
   category: string;
   price: number; // Stored in readable currency units (e.g., INR)
@@ -8,12 +8,11 @@ export interface Product {
   image_url?: string | null; // Changed to image_url to match Supabase
   stock: number; // New field for product stock
   url?: string | null;
-  asin?: string | null; // Keeping asin as a separate field if needed, though it's the ID
+  asin?: string | null; // Keeping asin as a separate field if needed
   currency?: string | null;
   brand?: string | null;
   overview?: any | null; // JSONB type
   about_item?: string | null;
-  // availability?: string | null; // Removed as it's replaced by 'stock'
   specifications?: any | null; // JSONB type
   uniq_id?: string | null;
   scraped_at?: string | null;

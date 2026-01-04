@@ -90,7 +90,7 @@ const seedProducts = async () => {
     console.log('Existing products deleted.');
 
     const productsToInsert: ProductToInsert[] = records.map((row) => {
-      const productId = row.asin || row.uniq_id || uuidv4();
+      const productId = uuidv4(); // Always generate a new UUID for the product ID
       const imageUrl = row.image_url ? row.image_url.split('~')[0] : 'https://via.placeholder.com/400';
       const basePrice = parseFloat(row.price) || 0;
       const description = row.description || row.about_item || row.name;
@@ -99,7 +99,7 @@ const seedProducts = async () => {
       console.log(`Mapping product: ${row.name}, Stock: ${stock}`);
 
       return {
-        id: productId,
+        id: productId, // Use the generated UUID
         name: row.name,
         category: category,
         price: basePrice, // Store directly
@@ -108,13 +108,13 @@ const seedProducts = async () => {
         image_url: imageUrl,
         stock: stock,
         url: row.url || null,
-        asin: row.asin || null,
+        asin: row.asin || null, // Keep original asin for reference
         currency: row.currency || 'INR',
         brand: row.brand || null,
         overview: row.overview ? JSON.parse(row.overview.replace(/\\'/g, "'")) : null,
         about_item: row.about_item || null,
         specifications: row.specifications ? JSON.parse(row.specifications.replace(/\\'/g, "'")) : null,
-        uniq_id: row.uniq_id || null,
+        uniq_id: row.uniq_id || null, // Keep original uniq_id for reference
         scraped_at: row.scraped_at || null,
       };
     });
