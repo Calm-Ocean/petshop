@@ -27,15 +27,33 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { payload } = await verify(token, Deno.env.get('JWT_SECRET') ?? '', 'HS256'); // Changed to JWT_SECRET
-    const userId = payload.sub;
+    
+    const jwtSecret = Deno.env.get('JWT_SECRET');
+    if (!jwtSecret || jwtSecret.length === 0) {
+      return new Response(JSON.stringify({ error: 'Server Error: JWT_SECRET is not configured or is empty.' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token payload' }), {
+    let payload;
+    try {
+      payload = await verify(token, jwtSecret, 'HS256');
+    } catch (jwtError) {
+      console.error('JWT Verification Error:', jwtError);
+      return new Response(JSON.stringify({ error: `Unauthorized: Invalid token. ${jwtError instanceof Error ? jwtError.message : String(jwtError)}` }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    if (!payload || !payload.sub) {
+      return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token payload after verification' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const userId = payload.sub;
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -68,7 +86,7 @@ serve(async (req) => {
         id: authUser.id,
         email: authUser.email,
         first_name: userProfile?.first_name || null,
-                last_name: userProfile?.last_name || null,
+        last_name: userProfile?.last_name || null,
         role: userProfile?.role || 'user',
       };
     });
