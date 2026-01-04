@@ -30,7 +30,7 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { payload } = await verify(token, Deno.env.get('SUPABASE_JWT_SECRET') ?? '', 'HS256');
+    const { payload } = await verify(token, Deno.env.get('JWT_SECRET') ?? '', 'HS256'); // Changed to JWT_SECRET
     const userId = payload.sub;
 
     if (!userId) {
