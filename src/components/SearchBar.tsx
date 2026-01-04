@@ -38,7 +38,7 @@ const SearchBar = () => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="flex w-full max-w-md items-center space-x-2 mb-8 mx-auto">
+    <form onSubmit={handleSearch} className="flex w-full max-w-md items-center space-x-2 mx-auto">
       <Input
         type="text"
         placeholder="Search products..."
