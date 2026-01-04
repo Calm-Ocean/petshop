@@ -96,14 +96,14 @@ const ProductDetailsPage = () => {
             <div className="flex items-baseline space-x-4">
               {product.discount_price != null ? (
                 <>
-                  <span className="text-3xl font-bold text-primary">₹{product.discount_price.toFixed(0)}</span>
-                  <span className="text-lg text-muted-foreground line-through">₹{product.price.toFixed(0)}</span>
+                  <span className="text-3xl font-bold text-primary">₹{product.discount_price.toFixed(2)}</span>
+                  <span className="text-lg text-muted-foreground line-through">₹{product.price.toFixed(2)}</span>
                   <Badge variant="destructive">
                     Save {((1 - product.discount_price / product.price) * 100).toFixed(0)}%
                   </Badge>
                 </>
               ) : (
-                <span className="text-3xl font-bold text-primary">₹{product.price.toFixed(0)}</span>
+                <span className="text-3xl font-bold text-primary">₹{product.price.toFixed(2)}</span>
               )}
             </div>
             <div className="flex items-center space-x-2">

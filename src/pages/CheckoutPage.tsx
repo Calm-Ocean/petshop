@@ -157,14 +157,14 @@ const CheckoutPage = () => {
               return (
                 <div key={item.id} className="flex justify-between text-sm text-muted-foreground">
                   <span>{item.name} (x{item.quantity})</span>
-                  <span>₹{(price * item.quantity).toFixed(0)}</span>
+                  <span>₹{(price * item.quantity).toFixed(2)}</span>
                 </div>
               );
             })}
             <Separator />
             <div className="flex justify-between text-lg">
               <span>Subtotal:</span>
-              <span className="font-semibold">₹{cartTotal.toFixed(0)}</span>
+              <span className="font-semibold">₹{cartTotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-lg">
               <span>Shipping:</span>
@@ -173,7 +173,7 @@ const CheckoutPage = () => {
             <Separator />
             <div className="flex justify-between text-xl font-bold">
               <span>Total:</span>
-              <span>₹{cartTotal.toFixed(0)}</span>
+              <span>₹{cartTotal.toFixed(2)}</span>
             </div>
           </CardContent>
           <CardFooter>

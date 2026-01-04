@@ -39,8 +39,8 @@ interface ProductToInsert {
   id: string;
   name: string;
   category: string;
-  price: number; // Stored in cents
-  discount_price: number | null; // Stored in cents, optional
+  price: number; // Stored directly as double precision
+  discount_price: number | null; // Stored directly as double precision, optional
   description: string;
   image_url: string | null;
   stock: number;
@@ -65,8 +65,6 @@ const getAnimalCategory = (fullCategory: string): string => {
   if (parts.includes('Fish')) return 'Fish';
   return 'Other';
 };
-
-// Removed parseStock function as we are now hardcoding stock to 100
 
 const seedProducts = async () => {
   try {
@@ -95,7 +93,6 @@ const seedProducts = async () => {
       const productId = row.asin || row.uniq_id || uuidv4();
       const imageUrl = row.image_url ? row.image_url.split('~')[0] : 'https://via.placeholder.com/400';
       const basePrice = parseFloat(row.price) || 0;
-      const priceInCents = Math.round(basePrice * 100); // Store original price in cents
       const description = row.description || row.about_item || row.name;
       const category = getAnimalCategory(row.category);
       const stock = 100; // Hardcode stock to 100 for all products
@@ -104,7 +101,7 @@ const seedProducts = async () => {
         id: productId,
         name: row.name,
         category: category,
-        price: priceInCents, // Store in cents
+        price: basePrice, // Store directly
         discount_price: null, // No discount price in CSV
         description: description,
         image_url: imageUrl,

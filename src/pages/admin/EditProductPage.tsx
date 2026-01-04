@@ -52,7 +52,7 @@ const EditProductPage = () => {
       if (!prev) return null;
       return {
         ...prev,
-        [id]: id === 'price' || id === 'discount_price' || id === 'stock' ? parseInt(value, 10) || 0 : value, // Parse price/stock as integers
+        [id]: id === 'price' || id === 'discount_price' ? parseFloat(value) || 0.00 : (id === 'stock' ? parseInt(value, 10) || 0 : value), // Parse price/discount_price as floats, stock as integer
       };
     });
   };
@@ -114,12 +114,12 @@ const EditProductPage = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="price">Price (x50, no decimals)</Label>
-                <Input id="price" type="number" step="1" min="1" required value={currentProduct.price} onChange={handleInputChange} />
+                <Label htmlFor="price">Price</Label>
+                <Input id="price" type="number" step="0.01" min="0.01" required value={currentProduct.price} onChange={handleInputChange} />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="discount_price">Discount Price (Optional) (x50, no decimals)</Label>
-                <Input id="discount_price" type="number" step="1" min="0" value={currentProduct.discount_price || ''} onChange={handleInputChange} />
+                <Label htmlFor="discount_price">Discount Price (Optional)</Label>
+                <Input id="discount_price" type="number" step="0.01" min="0" value={currentProduct.discount_price || ''} onChange={handleInputChange} />
               </div>
             </div>
             <div className="grid gap-2">

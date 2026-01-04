@@ -32,8 +32,7 @@ export const createOrder = async (
   const orderItemsToInsert = cartItems.map(item => ({
     order_id: orderData.id,
     product_id: item.id,
-    // Convert from displayed value (x50, rounded) back to database's 'cents' equivalent
-    product_price: ((item.discount_price ?? item.price) / 50) * 100, 
+    product_price: item.discount_price ?? item.price, // Store actual price
     product_name: item.name,
     quantity: item.quantity,
     image_url: item.image_url,
@@ -93,8 +92,7 @@ export const getOrdersByUserId = async (userId: string): Promise<Order[]> => {
     items: order.order_items.map((item: any) => ({
       id: item.product_id, // Map product_id to id for consistency with Product type
       name: item.product_name,
-      // Convert from database's 'cents' to displayed value (x50, rounded)
-      price: Math.round((item.product_price / 100) * 50), 
+      price: item.product_price, // Use direct price
       quantity: item.quantity,
       image_url: item.image_url,
       // Add other Product properties if needed, or fetch full product details separately
@@ -138,8 +136,7 @@ export const getAllOrders = async (): Promise<Order[]> => {
     items: order.order_items.map((item: any) => ({
       id: item.product_id,
       name: item.product_name,
-      // Convert from database's 'cents' to displayed value (x50, rounded)
-      price: Math.round((item.product_price / 100) * 50), 
+      price: item.product_price, // Use direct price
       quantity: item.quantity,
       image_url: item.image_url,
       category: 'N/A',

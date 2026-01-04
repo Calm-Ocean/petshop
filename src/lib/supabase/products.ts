@@ -1,13 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
 
-// Helper to convert price from database's 'cents' to a readable format (x50 and rounded)
+// Helper to ensure prices are numbers and handle nulls for discount_price
 const formatProductPrices = (product: any): Product => {
   const formattedProduct = {
     ...product,
-    // Convert from cents (DB) to base unit (DB_price / 100), then multiply by 50 and round
-    price: Math.round((product.price / 100) * 50),
-    discount_price: product.discount_price ? Math.round((product.discount_price / 100) * 50) : null,
+    price: parseFloat(product.price) || 0,
+    discount_price: product.discount_price ? parseFloat(product.discount_price) : null,
   };
   console.log(`Supabase Products Service: Formatted product ${formattedProduct.name} (ID: ${formattedProduct.id}): Description: "${formattedProduct.description}"`);
   return formattedProduct;
@@ -91,10 +90,8 @@ export const addProduct = async (product: Omit<Product, 'id' | 'created_at'>): P
     .from('products')
     .insert({
       ...product,
-      // Convert from displayed value (x50, rounded) back to database's 'cents' equivalent
-      // displayed_price -> (displayed_price / 50) -> (actual_price * 100)
-      price: (product.price / 50) * 100, 
-      discount_price: product.discount_price ? (product.discount_price / 50) * 100 : null,
+      price: product.price, 
+      discount_price: product.discount_price || null,
     })
     .select()
     .single();
@@ -113,9 +110,8 @@ export const updateProduct = async (product: Product): Promise<Product> => {
     .from('products')
     .update({
       ...product,
-      // Convert from displayed value (x50, rounded) back to database's 'cents' equivalent
-      price: (product.price / 50) * 100,
-      discount_price: product.discount_price ? (product.discount_price / 50) * 100 : null,
+      price: product.price,
+      discount_price: product.discount_price || null,
     })
     .eq('id', product.id)
     .select()
