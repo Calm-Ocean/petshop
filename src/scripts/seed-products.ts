@@ -55,15 +55,14 @@ interface ProductToInsert {
   scraped_at: string | null;
 }
 
-const getAnimalCategory = (fullCategory: string): string => {
-  if (!fullCategory) return 'Other';
-  const parts = fullCategory.split('|').map(p => p.trim());
-  if (parts.includes('Cats')) return 'Cats';
-  if (parts.includes('Dogs')) return 'Dogs';
-  if (parts.includes('Birds')) return 'Birds';
-  if (parts.includes('Small Animals')) return 'Small Animals';
-  if (parts.includes('Fish')) return 'Fish';
-  return 'Other';
+// Updated getAnimalCategory to use product name for categorization
+const getAnimalCategory = (productName: string): string => {
+  const lowerCaseName = productName.toLowerCase();
+  if (lowerCaseName.includes('dog')) return 'Dogs';
+  if (lowerCaseName.includes('cat')) return 'Cats';
+  if (lowerCaseName.includes('bird')) return 'Birds';
+  if (lowerCaseName.includes('fish')) return 'Fish';
+  return 'Other'; // Default to 'Other' if no specific animal keyword is found
 };
 
 const seedProducts = async () => {
@@ -94,9 +93,9 @@ const seedProducts = async () => {
       const imageUrl = row.image_url ? row.image_url.split('~')[0] : 'https://via.placeholder.com/400';
       const basePrice = parseFloat(row.price) || 0;
       const description = row.description || row.about_item || row.name;
-      const category = getAnimalCategory(row.category);
+      const category = getAnimalCategory(row.name); // Use product name for categorization
       const stock = 100; // Hardcode stock to 100 for all products
-      console.log(`Mapping product: ${row.name}, Stock: ${stock}`);
+      console.log(`Mapping product: ${row.name}, Stock: ${stock}, Category: ${category}`);
 
       return {
         id: productId, // Use the generated UUID
