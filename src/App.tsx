@@ -22,14 +22,13 @@ import RegisterPage from '@/pages/RegisterPage';
 import AboutPage from '@/pages/AboutPage';
 import UserAccountPage from '@/pages/UserAccountPage';
 import UserOrderHistoryPage from '@/pages/UserOrderHistoryPage';
-import UserAddressPage from '@/pages/UserAddressPage'; // New import
+import UserAddressPage from '@/pages/UserAddressPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AddProductPage from '@/pages/admin/AddProductPage';
 import EditProductPage from '@/pages/admin/EditProductPage';
 import ManageProductsPage from '@/pages/admin/ManageProductsPage';
 import ManageOrdersPage from '@/pages/admin/ManageOrdersPage';
-import ManageUsersPage from '@/pages/admin/ManageUsersPage';
-import EditUserPage from '@/pages/admin/EditUserPage';
+// Removed ManageUsersPage and EditUserPage imports
 import NotFound from '@/pages/NotFound';
 
 const App = () => {
@@ -56,7 +55,7 @@ const App = () => {
                 <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
                   <Route path="/my-account" element={<UserAccountPage />} />
                   <Route path="/my-orders" element={<UserOrderHistoryPage />} />
-                  <Route path="/my-account/address" element={<UserAddressPage />} /> {/* New route */}
+                  <Route path="/my-account/address" element={<UserAddressPage />} />
                 </Route>
 
                 {/* Admin Protected Routes */}
@@ -66,8 +65,7 @@ const App = () => {
                   <Route path="/admin/products/add" element={<AddProductPage />} />
                   <Route path="/admin/products/edit/:productId" element={<EditProductPage />} />
                   <Route path="/admin/orders" element={<ManageOrdersPage />} />
-                  <Route path="/admin/users" element={<ManageUsersPage />} />
-                  <Route path="/admin/users/edit/:userId" element={<EditUserPage />} />
+                  {/* Removed user management routes */}
                 </Route>
 
                 {/* Catch-all for 404 */}

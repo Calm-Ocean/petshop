@@ -9,7 +9,7 @@ const AdminDashboardPage = () => {
     <div className="text-center py-12">
       <h1 className="text-4xl font-bold mb-4">Admin Dashboard</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Manage products, users, and orders.
+        Manage products and orders.
       </p>
       <div className="flex justify-center space-x-4">
         <Link to="/admin/products/add">
@@ -18,9 +18,7 @@ const AdminDashboardPage = () => {
         <Link to="/admin/products">
           <Button>Manage Products</Button>
         </Link>
-        <Link to="/admin/users"> {/* Updated link */}
-          <Button variant="outline">Manage Users</Button>
-        </Link>
+        {/* Removed link to Manage Users */}
         <Link to="/admin/orders">
           <Button variant="secondary">Manage Orders</Button>
         </Link>

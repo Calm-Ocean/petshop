@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -23,7 +23,7 @@ const Navbar = () => {
   const { user, role, logout } = useAuth();
   const { cartItemCount } = useCart();
   const navigate = useNavigate();
-  const location = useLocation(); // Get current location
+  const location = useLocation();
 
   // We still fetch all categories for potential future use or other parts of the app
   const { data: allCategories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
@@ -37,8 +37,8 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Determine if the current page is the home page
-  const isHomePage = location.pathname === '/home' || location.pathname === '/';
+  // Determine if the current page is the shop page
+  const isShopPage = location.pathname === '/shop';
 
   return (
     <nav className="bg-primary text-primary-foreground p-4 shadow-md sticky top-0 z-50">
@@ -47,14 +47,14 @@ const Navbar = () => {
           <Package className="h-6 w-6" /> PetShop
         </Link>
         
-        {/* Search Bar in Navbar - conditionally rendered */}
-        {!isHomePage && (
+        {/* Search Bar in Navbar - conditionally rendered only on the shop page */}
+        {isShopPage && (
           <div className="flex-grow max-w-md mx-4">
             <SearchBar />
           </div>
         )}
 
-        <div className={`flex items-center space-x-4 ${isHomePage ? 'ml-auto' : ''}`}> {/* Adjust margin if search bar is hidden */}
+        <div className={`flex items-center space-x-4 ${!isShopPage ? 'ml-auto' : ''}`}> {/* Adjust margin if search bar is hidden */}
           <Link to="/home">
             <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
               <Home className="h-4 w-4 mr-2" /> Home
