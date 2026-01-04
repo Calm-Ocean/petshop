@@ -24,7 +24,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // CartProvider component to wrap the application and provide cart functionality
-export const CartProvider = ({ children }: { children: ReactNode }) => {
+export const CartProvider = ({ children }: { ReactNode }) => {
   // Initialize cart from localStorage or an empty array
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     if (typeof window !== 'undefined') {
@@ -52,6 +52,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to add a product to the cart
   const addToCart = useCallback((product: Product, quantityToAdd: number = 1) => {
+    console.log(`[CartContext] Attempting to add product: ${product.name} (ID: ${product.id}) with quantity: ${quantityToAdd}`);
     setCartItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex((item) => item.id === product.id);
 
@@ -60,6 +61,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         const updatedItems = [...prevItems];
         const existingItem = updatedItems[existingItemIndex];
         const newQuantity = existingItem.quantity + quantityToAdd;
+
+        console.log(`[CartContext] Product already in cart. Existing ID: ${existingItem.id}, New Quantity: ${newQuantity}`);
 
         if (newQuantity > product.stock) {
           toast.error(`Cannot add more than ${product.stock} of ${product.name} to cart.`);
@@ -74,6 +77,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         return updatedItems;
       } else {
         // If item is new, add it to the cart
+        console.log(`[CartContext] Product is new to cart. ID: ${product.id}`);
         if (quantityToAdd > product.stock) {
           toast.error(`Cannot add more than ${product.stock} of ${product.name} to cart.`);
           return prevItems; // Do not add if initial quantity exceeds stock
