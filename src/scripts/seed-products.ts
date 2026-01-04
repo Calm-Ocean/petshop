@@ -96,6 +96,7 @@ const seedProducts = async () => {
       const description = row.description || row.about_item || row.name;
       const category = getAnimalCategory(row.category);
       const stock = 100; // Hardcode stock to 100 for all products
+      console.log(`Mapping product: ${row.name}, Stock: ${stock}`);
 
       return {
         id: productId,
@@ -128,6 +129,19 @@ const seedProducts = async () => {
         console.error(`Error inserting batch starting at index ${i}:`, insertError);
         // Continue to next batch or break, depending on desired error handling
       }
+    }
+
+    // Explicitly update stock for all products to 100 after insertion
+    console.log('Ensuring all products have stock set to 100...');
+    const { error: updateStockError } = await supabase
+      .from('products')
+      .update({ stock: 100 })
+      .neq('id', uuidv4()); // Update all rows
+
+    if (updateStockError) {
+      console.error('Error updating stock for all products:', updateStockError);
+    } else {
+      console.log('All products stock set to 100.');
     }
 
     console.log('Product seeding complete!');
