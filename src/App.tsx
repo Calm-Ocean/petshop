@@ -28,8 +28,7 @@ import AddProductPage from '@/pages/admin/AddProductPage';
 import EditProductPage from '@/pages/admin/EditProductPage';
 import ManageProductsPage from '@/pages/admin/ManageProductsPage';
 import ManageOrdersPage from '@/pages/admin/ManageOrdersPage';
-import ManageUsersPage from '@/pages/admin/ManageUsersPage'; // Re-added import
-import EditUserPage from '@/pages/admin/EditUserPage'; // Re-added import
+// Removed ManageUsersPage and EditUserPage imports
 import NotFound from '@/pages/NotFound';
 
 const App = () => {
@@ -66,8 +65,7 @@ const App = () => {
                   <Route path="/admin/products/add" element={<AddProductPage />} />
                   <Route path="/admin/products/edit/:productId" element={<EditProductPage />} />
                   <Route path="/admin/orders" element={<ManageOrdersPage />} />
-                  <Route path="/admin/users" element={<ManageUsersPage />} /> {/* Re-added route */}
-                  <Route path="/admin/users/edit/:userId" element={<EditUserPage />} /> {/* Re-added route */}
+                  {/* Removed Manage Users and Edit User routes */}
                 </Route>
 
                 {/* Catch-all for 404 */}

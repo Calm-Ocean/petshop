@@ -18,9 +18,7 @@ const AdminDashboardPage = () => {
         <Link to="/admin/products">
           <Button>Manage Products</Button>
         </Link>
-        <Link to="/admin/users"> {/* Added back Manage Users link */}
-          <Button variant="secondary">Manage Users</Button>
-        </Link>
+        {/* Removed Manage Users link */}
         <Link to="/admin/orders">
           <Button variant="secondary">Manage Orders</Button>
         </Link>
