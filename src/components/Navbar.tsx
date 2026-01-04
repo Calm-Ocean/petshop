@@ -37,9 +37,6 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Determine if the current page is the shop page
-  const isShopPage = location.pathname === '/shop';
-
   return (
     <nav className="bg-primary text-primary-foreground p-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex flex-wrap justify-between items-center gap-y-4">
@@ -47,14 +44,12 @@ const Navbar = () => {
           <Package className="h-6 w-6" /> PetShop
         </Link>
         
-        {/* Search Bar in Navbar - conditionally rendered only on the shop page */}
-        {isShopPage && (
-          <div className="flex-grow max-w-md mx-4">
-            <SearchBar />
-          </div>
-        )}
+        {/* Search Bar in Navbar - now always rendered */}
+        <div className="flex-grow max-w-md mx-4">
+          <SearchBar />
+        </div>
 
-        <div className={`flex items-center space-x-4 ${!isShopPage ? 'ml-auto' : ''}`}> {/* Adjust margin if search bar is hidden */}
+        <div className="flex items-center space-x-4"> {/* Removed conditional ml-auto */}
           <Link to="/home">
             <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
               <Home className="h-4 w-4 mr-2" /> Home
