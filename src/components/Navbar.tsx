@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/lib/supabase/products';
-import SearchBar from '@/components/SearchBar'; // Re-import SearchBar
+import SearchBar from '@/components/SearchBar';
 import { ANIMAL_CATEGORIES } from '@/constants/categories';
 
 const Navbar = () => {
@@ -24,6 +24,7 @@ const Navbar = () => {
   const { cartItemCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+  const isOnShopPage = location.pathname === '/shop'; // Check if current page is /shop
 
   // We still fetch all categories for potential future use or other parts of the app
   const { data: allCategories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
@@ -44,10 +45,12 @@ const Navbar = () => {
           <Package className="h-6 w-6" /> PetShop
         </Link>
         
-        {/* Search Bar re-added to Navbar */}
-        <div className="flex-grow max-w-md mx-4 hidden md:block"> {/* Added max-w-md and mx-4 for styling */}
-          <SearchBar />
-        </div>
+        {/* Search Bar, visible only on the shop page for desktop */}
+        {isOnShopPage && (
+          <div className="flex-grow max-w-md mx-4 hidden md:block">
+            <SearchBar />
+          </div>
+        )}
 
         <div className="flex items-center space-x-4 ml-auto">
           <Link to="/home">
@@ -116,10 +119,12 @@ const Navbar = () => {
           )}
         </div>
       </div>
-      {/* Search bar for mobile view, visible below the main nav items */}
-      <div className="md:hidden mt-4 w-full">
-        <SearchBar />
-      </div>
+      {/* Search bar for mobile view, visible only on the shop page */}
+      {isOnShopPage && (
+        <div className="md:hidden mt-4 w-full">
+          <SearchBar />
+        </div>
+      )}
     </nav>
   );
 };
