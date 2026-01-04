@@ -44,7 +44,7 @@ const SearchBar = () => {
         placeholder="Search products..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="flex-grow"
+        className="flex-grow text-black"
       />
       {searchTerm && (
         <Button variant="ghost" size="icon" onClick={handleClearSearch} type="button">
