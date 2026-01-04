@@ -120,7 +120,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const cartTotal = cartItems.reduce((total, item) => {
-    const price = item.discount_price !== undefined && item.discount_price !== null ? item.discount_price : item.price;
+    const price = item.discount_price ?? item.price; // Simplified using nullish coalescing
     console.log(`CartContext: Calculating total for item ${item.name}: price=${price}, quantity=${item.quantity}, subtotal=${price * item.quantity}`);
     return total + price * item.quantity;
   }, 0);
