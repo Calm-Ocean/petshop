@@ -2,14 +2,13 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Product } from '@/types/product';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { useCart, CartItem as CartItemType } from '@/context/CartContext'; // Import CartItemType from context
 
 interface CartItemProps {
-  item: Product & { quantity: number };
+  item: CartItemType; // Use the CartItemType from context
 }
 
 const CartItem = ({ item }: CartItemProps) => {
@@ -17,6 +16,7 @@ const CartItem = ({ item }: CartItemProps) => {
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = parseInt(e.target.value, 10);
+    // Only update if it's a valid number, otherwise let the input handle its own state
     if (!isNaN(newQuantity)) {
       updateQuantity(item.id, newQuantity);
     }
@@ -26,22 +26,27 @@ const CartItem = ({ item }: CartItemProps) => {
   const itemTotal = price * item.quantity;
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b py-4 last:border-b-0 space-y-4 md:space-y-0">
-      {/* Left side: image, name, category, price */}
-      <div className="flex items-center space-x-4 w-full md:w-auto">
-        <Link to={`/shop/${item.id}`}>
-          <img src={item.image_url} alt={item.name} className="w-20 h-20 object-cover rounded-md flex-shrink-0" />
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b py-4 last:border-b-0 gap-4">
+      {/* Product Info: Image, Name, Category */}
+      <div className="flex items-center gap-4 flex-grow">
+        <Link to={`/shop/${item.id}`} className="flex-shrink-0">
+          <img
+            src={item.image_url || 'https://via.placeholder.com/80'}
+            alt={item.name}
+            className="w-20 h-20 object-cover rounded-md"
+          />
         </Link>
-        <div className="flex flex-col space-y-1">
+        <div className="flex flex-col min-w-0">
           <Link to={`/shop/${item.id}`} className="text-lg font-semibold hover:underline line-clamp-2">
             {item.name}
           </Link>
-          <p className="text-muted-foreground text-sm">{item.category}</p>
-          <p className="text-primary font-medium">₹{price.toFixed(2)} each</p>
+          <p className="text-muted-foreground text-sm line-clamp-1">{item.category}</p>
         </div>
       </div>
-      {/* Right side: quantity input, item total, remove button */}
-      <div className="flex items-center space-x-4 mt-4 md:mt-0 w-full md:w-auto justify-end">
+
+      {/* Quantity, Price, Total, Remove Button */}
+      <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+        <p className="text-primary font-medium sm:hidden">Price: ₹{price.toFixed(2)}</p> {/* Show price on small screens */}
         <Input
           type="number"
           min="1"
@@ -49,9 +54,15 @@ const CartItem = ({ item }: CartItemProps) => {
           value={item.quantity}
           onChange={handleQuantityChange}
           className="w-20 text-center"
+          aria-label={`Quantity for ${item.name}`}
         />
         <p className="text-lg font-semibold min-w-[80px] text-right">₹{itemTotal.toFixed(2)}</p>
-        <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => removeFromCart(item.id)}
+          aria-label={`Remove ${item.name} from cart`}
+        >
           <Trash2 className="h-5 w-5 text-red-500" />
         </Button>
       </div>
