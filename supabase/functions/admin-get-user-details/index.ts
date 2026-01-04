@@ -30,7 +30,7 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { payload } = await verify(token, Deno.env.get('JWT_SECRET') ?? '', 'HS256'); // Changed to JWT_SECRET
+    const { payload } = await verify(token, Deno.env.get('JWT_SECRET') ?? '', 'HS256');
     const callerId = payload.sub;
 
     if (!callerId) {
@@ -92,9 +92,10 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
-  } catch (error) {
-    console.error('Error in admin-get-user-details Edge Function:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: any) {
+    console.error('Error in admin-get-user-details Edge Function:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
