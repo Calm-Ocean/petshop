@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/lib/supabase/products';
-// Removed SearchBar import
+import SearchBar from '@/components/SearchBar'; // Re-import SearchBar
 import { ANIMAL_CATEGORIES } from '@/constants/categories';
 
 const Navbar = () => {
@@ -44,9 +44,12 @@ const Navbar = () => {
           <Package className="h-6 w-6" /> PetShop
         </Link>
         
-        {/* Search Bar removed from Navbar */}
+        {/* Search Bar re-added to Navbar */}
+        <div className="flex-grow max-w-md mx-4 hidden md:block"> {/* Added max-w-md and mx-4 for styling */}
+          <SearchBar />
+        </div>
 
-        <div className="flex items-center space-x-4 ml-auto"> {/* Added ml-auto back for spacing */}
+        <div className="flex items-center space-x-4 ml-auto">
           <Link to="/home">
             <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
               <Home className="h-4 w-4 mr-2" /> Home
@@ -112,6 +115,10 @@ const Navbar = () => {
             </>
           )}
         </div>
+      </div>
+      {/* Search bar for mobile view, visible below the main nav items */}
+      <div className="md:hidden mt-4 w-full">
+        <SearchBar />
       </div>
     </nav>
   );
