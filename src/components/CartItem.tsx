@@ -22,24 +22,26 @@ const CartItem = ({ item }: CartItemProps) => {
     }
   };
 
-  const price = item.discount_price ?? item.price; // Fixed: Use nullish coalescing to handle null discount_price
+  const price = item.discount_price ?? item.price;
   const itemTotal = price * item.quantity;
 
   return (
-    <div className="flex items-center justify-between border-b py-4 last:border-b-0">
-      <div className="flex items-center space-x-4">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b py-4 last:border-b-0 space-y-4 md:space-y-0">
+      {/* Left side: image, name, category, price */}
+      <div className="flex items-center space-x-4 w-full md:w-auto">
         <Link to={`/shop/${item.id}`}>
-          <img src={item.image_url} alt={item.name} className="w-20 h-20 object-cover rounded-md" />
+          <img src={item.image_url} alt={item.name} className="w-20 h-20 object-cover rounded-md flex-shrink-0" />
         </Link>
-        <div>
-          <Link to={`/shop/${item.id}`} className="text-lg font-semibold hover:underline">
+        <div className="flex flex-col space-y-1">
+          <Link to={`/shop/${item.id}`} className="text-lg font-semibold hover:underline line-clamp-2">
             {item.name}
           </Link>
           <p className="text-muted-foreground text-sm">{item.category}</p>
           <p className="text-primary font-medium">₹{price.toFixed(2)} each</p>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
+      {/* Right side: quantity input, item total, remove button */}
+      <div className="flex items-center space-x-4 mt-4 md:mt-0 w-full md:w-auto justify-end">
         <Input
           type="number"
           min="1"
@@ -48,7 +50,7 @@ const CartItem = ({ item }: CartItemProps) => {
           onChange={handleQuantityChange}
           className="w-20 text-center"
         />
-        <p className="text-lg font-semibold">₹{itemTotal.toFixed(2)}</p>
+        <p className="text-lg font-semibold min-w-[80px] text-right">₹{itemTotal.toFixed(2)}</p>
         <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
           <Trash2 className="h-5 w-5 text-red-500" />
         </Button>
