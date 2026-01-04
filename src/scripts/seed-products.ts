@@ -55,14 +55,17 @@ interface ProductToInsert {
   scraped_at: string | null;
 }
 
-const getAnimalCategory = (fullCategory: string): string => {
+const getAnimalCategory = (fullCategory: string, productName: string): string => {
   if (!fullCategory) return 'Other';
   const parts = fullCategory.split('|').map(p => p.trim());
+  
+  if (productName.toLowerCase().includes('fish')) return 'Fish'; // Prioritize 'Fish' if name contains 'fish'
   if (parts.includes('Cats')) return 'Cats';
   if (parts.includes('Dogs')) return 'Dogs';
   if (parts.includes('Birds')) return 'Birds';
-  if (parts.includes('Small Animals')) return 'Small Animals';
-  if (parts.includes('Fish')) return 'Fish';
+  if (parts.includes('Fish')) return 'Fish'; // Existing 'Fish' category check
+  
+  // If it was 'Small Animals' or anything else not explicitly mapped, it becomes 'Other'
   return 'Other';
 };
 
@@ -97,7 +100,7 @@ const seedProducts = async () => {
       const basePrice = parseFloat(row.price) || 0;
       const priceInCents = Math.round(basePrice * 100); // Store original price in cents
       const description = row.description || row.about_item || row.name;
-      const category = getAnimalCategory(row.category);
+      const category = getAnimalCategory(row.category, row.name); // Pass product name to getAnimalCategory
       const stock = 100; // Hardcode stock to 100 for all products
 
       return {
