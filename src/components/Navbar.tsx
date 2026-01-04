@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -16,13 +16,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/lib/supabase/products';
-import SearchBar from '@/components/SearchBar'; // Import SearchBar
-import { ANIMAL_CATEGORIES } from '@/constants/categories'; // Import ANIMAL_CATEGORIES
+import SearchBar from '@/components/SearchBar';
+import { ANIMAL_CATEGORIES } from '@/constants/categories';
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();
   const { cartItemCount } = useCart();
   const navigate = useNavigate();
+  const location = useLocation(); // Get current location
 
   // We still fetch all categories for potential future use or other parts of the app
   const { data: allCategories, isLoading: isLoadingCategories, error: categoriesError } = useQuery({
@@ -36,6 +37,9 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  // Determine if the current page is the home page
+  const isHomePage = location.pathname === '/home' || location.pathname === '/';
+
   return (
     <nav className="bg-primary text-primary-foreground p-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex flex-wrap justify-between items-center gap-y-4">
@@ -43,12 +47,14 @@ const Navbar = () => {
           <Package className="h-6 w-6" /> PetShop
         </Link>
         
-        {/* Search Bar in Navbar */}
-        <div className="flex-grow max-w-md mx-4">
-          <SearchBar />
-        </div>
+        {/* Search Bar in Navbar - conditionally rendered */}
+        {!isHomePage && (
+          <div className="flex-grow max-w-md mx-4">
+            <SearchBar />
+          </div>
+        )}
 
-        <div className="flex items-center space-x-4 ml-auto"> {/* Pushed to the right */}
+        <div className={`flex items-center space-x-4 ${isHomePage ? 'ml-auto' : ''}`}> {/* Adjust margin if search bar is hidden */}
           <Link to="/home">
             <Button variant="ghost" className="text-primary-foreground hover:bg-primary/80">
               <Home className="h-4 w-4 mr-2" /> Home
