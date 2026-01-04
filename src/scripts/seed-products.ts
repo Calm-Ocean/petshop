@@ -55,14 +55,14 @@ interface ProductToInsert {
   scraped_at: string | null;
 }
 
-// Updated getAnimalCategory to use product name for categorization
+// Updated getAnimalCategory: removed 'Other' fallback, defaults to 'Dogs'
 const getAnimalCategory = (productName: string): string => {
   const lowerCaseName = productName.toLowerCase();
   if (lowerCaseName.includes('dog')) return 'Dogs';
   if (lowerCaseName.includes('cat')) return 'Cats';
   if (lowerCaseName.includes('bird')) return 'Birds';
   if (lowerCaseName.includes('fish')) return 'Fish';
-  return 'Other'; // Default to 'Other' if no specific animal keyword is found
+  return 'Dogs'; // Default to 'Dogs' if no specific animal keyword is found
 };
 
 const seedProducts = async () => {
@@ -88,7 +88,7 @@ const seedProducts = async () => {
     }
     console.log('Existing products deleted.');
 
-    const productsToInsert: ProductToInsert[] = records.map((row) => {
+    let productsToInsert: ProductToInsert[] = records.map((row) => {
       const productId = uuidv4(); // Always generate a new UUID for the product ID
       const imageUrl = row.image_url ? row.image_url.split('~')[0] : 'https://via.placeholder.com/400';
       const basePrice = parseFloat(row.price) || 0;
@@ -117,6 +117,49 @@ const seedProducts = async () => {
         scraped_at: row.scraped_at || null,
       };
     });
+
+    // Check if any 'Fish' products were found from CSV
+    const hasFishProducts = productsToInsert.some(p => p.category === 'Fish');
+
+    if (!hasFishProducts) {
+      console.log('No fish products found in CSV. Adding sample fish products.');
+      const sampleFishProducts: ProductToInsert[] = [
+        {
+          id: uuidv4(),
+          name: 'Tropical Fish Food Flakes',
+          category: 'Fish',
+          price: 150.00,
+          discount_price: null,
+          description: 'High-quality flakes for all tropical fish. Enhances color and vitality.',
+          image_url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          stock: 50,
+          url: null, asin: null, currency: 'INR', brand: 'AquaLife', overview: null, about_item: null, specifications: null, uniq_id: null, scraped_at: null,
+        },
+        {
+          id: uuidv4(),
+          name: 'Aquarium Gravel Cleaner',
+          category: 'Fish',
+          price: 499.00,
+          discount_price: null,
+          description: 'Easy-to-use gravel cleaner for maintaining a pristine aquarium.',
+          image_url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          stock: 30,
+          url: null, asin: null, currency: 'INR', brand: 'CleanTank', overview: null, about_item: null, specifications: null, uniq_id: null, scraped_at: null,
+        },
+        {
+          id: uuidv4(),
+          name: 'Betta Fish Tank Decor',
+          category: 'Fish',
+          price: 299.00,
+          discount_price: null,
+          description: 'Safe and beautiful decor for betta fish tanks. Provides hiding spots.',
+          image_url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          stock: 40,
+          url: null, asin: null, currency: 'INR', brand: 'FishyDecor', overview: null, about_item: null, specifications: null, uniq_id: null, scraped_at: null,
+        },
+      ];
+      productsToInsert = [...productsToInsert, ...sampleFishProducts];
+    }
 
     // Insert products in batches to avoid hitting Supabase rate limits or payload size limits
     const batchSize = 100;
