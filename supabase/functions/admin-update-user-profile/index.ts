@@ -27,7 +27,7 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { payload } = await verify(token, Deno.env.get('SUPABASE_JWT_SECRET') ?? '', 'HS256'); // Reverted to SUPABASE_JWT_SECRET
+    const { payload } = await verify(token, Deno.env.get('JWT_SECRET') ?? '', 'HS256'); // Changed to JWT_SECRET
     const callerId = payload.sub;
 
     if (!callerId) {
@@ -74,7 +74,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in admin-update-user-profile Edge Function:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), { // Reverted error handling
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
